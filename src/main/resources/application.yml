@@ -1,0 +1,19 @@
+server:
+  port: 8000
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/codegrade"
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret: secret
