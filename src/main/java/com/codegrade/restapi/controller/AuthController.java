@@ -1,30 +1,35 @@
 package com.codegrade.restapi.controller;
 
 import com.codegrade.restapi.entity.UserAccount;
-import com.codegrade.restapi.repository.UserAccountRepository;
+import com.codegrade.restapi.service.UserService;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.security.Principal;
+import java.util.Map;
 
 @Getter @Setter
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserAccountRepository userAccountRepository;
+    private final UserService userService;
 
-    @PostMapping
-    public UserAccount registerUser(@RequestBody UserAccount userAccount) {
-        userAccountRepository.save(userAccount);
-        return userAccount;
+    @PostMapping(path = "/auth/register")
+    public Map<String, Object> registerUser(@RequestBody UserAccount userAccount) {
+        return ImmutableMap.of(
+                "userId", userService.addUser(userAccount).getUserId()
+        );
     }
 
-    @GetMapping
-    public List<UserAccount> getUsers() {
-        return userAccountRepository.findAll();
+    @GetMapping(path = "/auth/user")
+    public Principal getUsers(Principal principal) {
+        return principal;
     }
 }

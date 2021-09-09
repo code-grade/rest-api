@@ -1,4 +1,4 @@
-package com.codegrade.restapi.security;
+package com.codegrade.restapi.entity;
 
 import com.google.common.collect.Sets;
 import java.util.Set;
@@ -8,6 +8,5 @@ public enum UserRole {
     INSTRUCTOR(Sets.newHashSet(UserPermission.READ, UserPermission.WRITE)),
     STUDENT(Sets.newHashSet(UserPermission.READ, UserPermission.WRITE));
 
-    UserRole(Set<UserPermission> permissions) {
-    }
+    UserRole(Set<UserPermission> permissions) {}
 }

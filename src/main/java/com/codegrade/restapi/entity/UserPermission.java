@@ -1,4 +1,4 @@
-package com.codegrade.restapi.security;
+package com.codegrade.restapi.entity;
 
 import lombok.Getter;
 

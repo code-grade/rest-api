@@ -1,5 +1,13 @@
 server:
   port: 8000
+  servlet:
+    context-path: "/api/"
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+    include-exception: false
+
 
 spring:
   jpa:
@@ -10,10 +18,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
   datasource:
-    url: "jdbc:postgresql://localhost:5432/codegrade"
+    url: "jdbc:postgresql://localhost:5432/code-grade"
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
 
 jwt:
-  secret: secret
+  secretKey: 9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l
+  expiresIn: 14
