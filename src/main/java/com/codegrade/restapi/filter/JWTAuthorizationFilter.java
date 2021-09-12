@@ -1,4 +1,4 @@
-package com.codegrade.restapi.security;
+package com.codegrade.restapi.filter;
 
 import com.codegrade.restapi.config.JwtConfig;
 import com.codegrade.restapi.utils.JwtUtils;

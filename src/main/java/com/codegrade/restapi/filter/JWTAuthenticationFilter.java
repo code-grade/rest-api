@@ -1,7 +1,8 @@
-package com.codegrade.restapi.security;
+package com.codegrade.restapi.filter;
 
 import com.codegrade.restapi.entity.AuthenticationRequest;
 import com.codegrade.restapi.utils.JwtUtils;
+import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
@@ -71,7 +72,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setStatus(HttpStatus.OK.value());
         response.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         response.getOutputStream().print(new ObjectMapper().writeValueAsString(
-                ImmutableMap.of("token", token)
+                RBuilder.success().setToken(token).compact()
         ));
 
         response.flushBuffer(); // marks response as committed

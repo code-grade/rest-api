@@ -1,17 +1,18 @@
 package com.codegrade.restapi.exception;
+
+import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -21,20 +22,24 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
                                         HttpServletResponse httpServletResponse,
                                         AuthenticationException ex) throws IOException, ServletException {
 
-        Map<String, Object> response = new HashMap<>();
+        OutputStream out = httpServletResponse.getOutputStream();
+        ObjectMapper mapper = new ObjectMapper();
+
         if (BadCredentialsException.class.equals(ex.getClass())) {
-            response.put("message", "Invalid username or password");
-            httpServletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(out,
+                    RBuilder.badRequest().setMsg("Invalid username or password").compact()
+            );
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
-            response.put("message", "Unknown Error");
+            mapper.writerWithDefaultPrettyPrinter().writeValue(out,
+                    RBuilder.error().setData("error", ex.toString()).compact()
+            );
             log.info(ex.toString());
             ex.printStackTrace();
             httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        OutputStream out = httpServletResponse.getOutputStream();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(out, response);
+
         out.flush();
     }
 }

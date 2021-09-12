@@ -2,6 +2,7 @@ package com.codegrade.restapi.controller;
 
 import com.codegrade.restapi.entity.UserAccount;
 import com.codegrade.restapi.service.UserService;
+import com.codegrade.restapi.utils.RBuilder;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,18 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.util.Map;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @RestController
 public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping(path = "/auth/register")
+    @PostMapping(path = "/auth/user")
     public Map<String, Object> registerUser(@RequestBody UserAccount userAccount) {
-        return ImmutableMap.of(
+        return RBuilder.success().setData(
                 "userId", userService.addUser(userAccount).getUserId()
-        );
+        ).compact();
     }
 
     @GetMapping(path = "/auth/user")

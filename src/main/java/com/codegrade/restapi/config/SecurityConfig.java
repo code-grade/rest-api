@@ -1,14 +1,15 @@
 package com.codegrade.restapi.config;
 
 import com.codegrade.restapi.exception.RestAuthenticationFailureHandler;
-import com.codegrade.restapi.security.JWTAuthenticationFilter;
-import com.codegrade.restapi.security.JWTAuthorizationFilter;
+import com.codegrade.restapi.filter.JWTAuthenticationFilter;
+import com.codegrade.restapi.filter.JWTAuthorizationFilter;
 import com.codegrade.restapi.service.UserService;
 import com.codegrade.restapi.utils.BPEncoder;
 import com.codegrade.restapi.utils.JwtUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -50,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/auth/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/user").permitAll()
                 .anyRequest()
                 .authenticated();
     }

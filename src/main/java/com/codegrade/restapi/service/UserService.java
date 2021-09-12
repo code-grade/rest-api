@@ -1,10 +1,13 @@
 package com.codegrade.restapi.service;
 
 import com.codegrade.restapi.entity.UserAccount;
+import com.codegrade.restapi.exception.APIException;
 import com.codegrade.restapi.repository.UserAccountRepository;
 import com.codegrade.restapi.utils.BPEncoder;
+import com.codegrade.restapi.utils.RBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,8 +25,14 @@ public class UserService implements UserDetailsService {
     private final BPEncoder bpEncoder;
 
     public UserAccount addUser(UserAccount userAccount) {
-        userAccount.setPassword(bpEncoder.encode(userAccount.getPassword()));
-        return userAccRepo.save(userAccount);
+        try {
+            userAccount.setPassword(bpEncoder.encode(userAccount.getPassword()));
+            return userAccRepo.save(userAccount);
+        } catch (DataIntegrityViolationException e) {
+            throw new APIException(RBuilder.badRequest()
+                    .setMsg("Username or email is already in use.")
+            );
+        }
     }
 
     @Override
