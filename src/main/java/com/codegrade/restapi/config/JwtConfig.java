@@ -6,19 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 
 
 @Component
-@SuppressWarnings("SpringPropertySource")
-@PropertySource("application.yml")
-@ConfigurationProperties("jwt")
 @Getter @Setter
 @NoArgsConstructor
+@ConfigurationProperties("jwt")
 public class JwtConfig {
 
     private String secretKey;
