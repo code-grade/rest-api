@@ -6,13 +6,17 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: [ "Test" ]
-    types:
-      - completed
+#  workflow_run:
+#    workflows: [ "Test" ]
+#    types:
+#      - completed
+  push:
+    branches:
+      - master
 
 jobs:
   build:
+    name: Building Application
     runs-on: ubuntu-latest
     steps:
       # setup environment
@@ -28,7 +32,37 @@ jobs:
       - name: Maven build without tests
         run: mvn --batch-mode --update-snapshots verify -Dmaven.test.skip
 
-      # building docker image
+      - name: Unpacking JAR
+        run: ./unpack-jar.sh
+        shell: bash
+      - name: LS
+        run: ls -R
+
+      # saving artifacts
+      - name: Temporarily save artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: webpack-artifact
+          path: target
+          retention-days: 1
+
+  deploy:
+    name: Docker image in DockerHub repository
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+
+      # Retrieving build files
+      - name: Retrieve built packages
+        uses: actions/download-artifact@v2
+        with:
+          name: webpack-artifact
+          path: target
+      - name: LS
+        run: ls -R
+
+      # Configure docker hub
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -38,9 +72,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # building docker image
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
+          context: .
           push: true
           tags: thilinatlm/code-grade:latest
