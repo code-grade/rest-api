@@ -3,11 +3,11 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish Docker image
+name: Release
 
 on:
   workflow_run:
-    workflows: [ "Build" ]
+    workflows: [ "Test" ]
     types:
       - completed
 
