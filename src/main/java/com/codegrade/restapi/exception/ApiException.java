@@ -4,11 +4,11 @@ import com.codegrade.restapi.utils.RBuilder;
 import lombok.Getter;
 
 @Getter
-public class APIException extends RuntimeException {
+public class ApiException extends RuntimeException {
 
     private final RBuilder rBuilder;
 
-    public APIException(RBuilder rBuilder) {
+    public ApiException(RBuilder rBuilder) {
         super();
         this.rBuilder = rBuilder;
     }

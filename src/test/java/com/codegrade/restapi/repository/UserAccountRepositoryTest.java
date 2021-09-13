@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class UserAccountRepositoryTest {
 
     @Autowired
-    private UserAccountRepository userAccountRepository;
+    private UserAccountRepo userAccountRepository;
 
     @Test
     public void addUser() {

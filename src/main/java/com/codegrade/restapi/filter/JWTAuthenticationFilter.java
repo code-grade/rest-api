@@ -1,18 +1,17 @@
 package com.codegrade.restapi.filter;
 
-import com.codegrade.restapi.entity.AuthenticationRequest;
 import com.codegrade.restapi.utils.JwtUtils;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -20,9 +19,17 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
-@Getter @Setter
+@Getter
+@Setter
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+    @Data
+    public static class AuthRequest {
+        private String username;
+        private String password;
+    }
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
@@ -42,12 +49,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            AuthenticationRequest authenticationRequest = new ObjectMapper()
-                    .readValue(request.getInputStream(), AuthenticationRequest.class);
+            AuthRequest authReq = new ObjectMapper().readValue(request.getInputStream(), AuthRequest.class);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    authenticationRequest.getUsername(),
-                    authenticationRequest.getPassword()
+                    authReq.getUsername(),
+                    authReq.getPassword()
             );
 
             return authenticationManager.authenticate(authentication);
@@ -61,21 +67,19 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException {
-
+                                              Authentication auth) throws IOException {
         String token = jwtUtils.signJwt(
                 auth.getName(),
-                ImmutableMap.of("authorities", auth.getAuthorities())
+                auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
         );
 
-        response.resetBuffer();
-        response.setStatus(HttpStatus.OK.value());
-        response.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        response.getOutputStream().print(new ObjectMapper().writeValueAsString(
-                RBuilder.success().setToken(token).compact()
-        ));
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        new ObjectMapper().writeValue(response.getOutputStream(),
+                RBuilder.success()
+                        .setData("user", auth.getName())
+                        .setToken(token).compact()
+        );
 
-        response.flushBuffer(); // marks response as committed
     }
 
 

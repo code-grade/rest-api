@@ -4,6 +4,7 @@ import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,11 @@ import java.io.OutputStream;
 
 @Component
 @Slf4j
-public class RestAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class AuthExceptHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse httpServletResponse,
-                                        AuthenticationException ex) throws IOException, ServletException {
+                                        AuthenticationException ex) throws IOException {
 
         OutputStream out = httpServletResponse.getOutputStream();
         ObjectMapper mapper = new ObjectMapper();
@@ -28,6 +29,11 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
         if (BadCredentialsException.class.equals(ex.getClass())) {
             mapper.writerWithDefaultPrettyPrinter().writeValue(out,
                     RBuilder.badRequest().setMsg("Invalid username or password").compact()
+            );
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        } else if (InternalAuthenticationServiceException.class.equals(ex.getClass())) {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(out,
+                    RBuilder.badRequest().setMsg("account is disabled or email is not verified").compact()
             );
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
@@ -43,3 +49,4 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
         out.flush();
     }
 }
+

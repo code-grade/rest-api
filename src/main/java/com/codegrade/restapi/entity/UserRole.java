@@ -9,4 +9,8 @@ public enum UserRole {
     STUDENT(Sets.newHashSet(UserPermission.READ, UserPermission.WRITE));
 
     UserRole(Set<UserPermission> permissions) {}
+
+    public String getRoleName() {
+        return "ROLE_" + this.name();
+    }
 }

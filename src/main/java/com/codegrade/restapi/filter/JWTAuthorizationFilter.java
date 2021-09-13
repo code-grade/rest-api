@@ -1,16 +1,15 @@
 package com.codegrade.restapi.filter;
 
 import com.codegrade.restapi.config.JwtConfig;
+import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.utils.JwtUtils;
+import com.codegrade.restapi.utils.RBuilder;
 import com.google.common.base.Strings;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,9 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -41,26 +37,23 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (!authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
+            throw new ApiException(RBuilder.badRequest().setMsg("incorrect authorization header format"));
+        }
+
         String token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "").trim();
 
         try {
-
-            Jws<Claims> claimsJws = jwtUtils.parseJwt(token);
-            Claims body = claimsJws.getBody();
-            String username = body.getSubject();
-            var authorities = (List<Map<String, String>>) body.get("authorities");
-            Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()
-                    .map(m -> new SimpleGrantedAuthority(m.get("authority")))
+            var jwtData = jwtUtils.parseJwt(token);
+            var simpleGrantedAuthorities = jwtData.getRoles().stream()
+                    .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toSet());
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    username,
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    jwtData.getUsername(),
                     null,
                     simpleGrantedAuthorities
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         } catch (JwtException e) {
             throw new IllegalStateException(String.format("Token %s cannot be trusted", token));
         }

@@ -23,6 +23,10 @@ spring:
     password: root
     driver-class-name: org.postgresql.Driver
 
-jwt:
-  secretKey: 9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l
-  expiresIn: 14
+auth:
+  super-admin:
+    username: admin
+    password: 12345
+  jwt:
+    secretKey: 9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l
+    expiresIn: 14

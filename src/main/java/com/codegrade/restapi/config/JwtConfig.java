@@ -14,7 +14,7 @@ import javax.crypto.SecretKey;
 @Component
 @Getter @Setter
 @NoArgsConstructor
-@ConfigurationProperties("jwt")
+@ConfigurationProperties("auth.jwt")
 public class JwtConfig {
 
     private String secretKey;

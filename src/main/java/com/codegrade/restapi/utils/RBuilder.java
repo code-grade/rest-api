@@ -27,6 +27,10 @@ public class RBuilder {
         return new RBuilder("Bad Request", HttpStatus.BAD_REQUEST);
     }
 
+    public static RBuilder unauthorized() {
+        return new RBuilder("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
     public static RBuilder notFound() {
         return new RBuilder("Not Found", HttpStatus.NOT_FOUND);
     }
