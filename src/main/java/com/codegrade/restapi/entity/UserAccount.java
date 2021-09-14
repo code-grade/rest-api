@@ -1,6 +1,6 @@
 package com.codegrade.restapi.entity;
 
-import com.codegrade.restapi.utils.EnumConstraint;
+import com.codegrade.restapi.utils.IsInEnum;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
@@ -42,7 +42,7 @@ public class UserAccount  {
     @Column(columnDefinition = "VARCHAR(100) default ''")
     private String lastName;
 
-    @EnumConstraint(enumClass = UserRole.class, message = "invalid user role")
+    @IsInEnum(enumClass = UserRole.class, message = "invalid user role")
     @Enumerated(EnumType.STRING)
     private UserRole role;
 

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -28,7 +29,11 @@ public class UserService implements UserDetailsService {
         return userAccRepo.findAll();
     };
 
-    public Optional<UserAccount> getUserByUsername(String username) {
+    public Optional<UserAccount> getUserDetails(UUID userId) {
+        return userAccRepo.findById(userId);
+    }
+
+    public Optional<UserAccount> getUserDetails(String username) {
         return userAccRepo.findByUsername(username);
     }
 
@@ -53,7 +58,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        UserAccount user = this.getUserByUsername(username)
+        UserAccount user = this.getUserDetails(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
 
         return AppUser.appUserBuilder()
@@ -63,5 +68,9 @@ public class UserService implements UserDetailsService {
                 .roles(user.getRole().name())
                 .disabled(!user.getIsEnabled())
                 .build();
+    }
+
+    public UserAccount updateUser(UserAccount user) {
+        return userAccRepo.save(user);
     }
 }

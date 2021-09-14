@@ -23,12 +23,20 @@ public class RBuilder {
         return new RBuilder("Success", HttpStatus.OK);
     }
 
+    public static RBuilder badRequest(String msg) {
+        return new RBuilder("Bad request", HttpStatus.BAD_REQUEST).setMsg(msg);
+    }
+
     public static RBuilder badRequest() {
-        return new RBuilder("Bad Request", HttpStatus.BAD_REQUEST);
+        return new RBuilder("Bad request", HttpStatus.BAD_REQUEST);
     }
 
     public static RBuilder unauthorized() {
         return new RBuilder("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+    public static RBuilder notFound(String msg) {
+        return new RBuilder("Not Found", HttpStatus.NOT_FOUND).setMsg(msg);
     }
 
     public static RBuilder notFound() {

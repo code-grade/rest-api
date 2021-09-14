@@ -1,5 +1,6 @@
 package com.codegrade.restapi.filter;
 
+import com.codegrade.restapi.service.AppUser;
 import com.codegrade.restapi.utils.JwtUtils;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,9 +68,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                              Authentication auth) throws IOException {
+                                            Authentication auth) throws IOException {
         String token = jwtUtils.signJwt(
                 auth.getName(),
+                ((AppUser) auth.getPrincipal()).getUserId(),
                 auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
         );
 

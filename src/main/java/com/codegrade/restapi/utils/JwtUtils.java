@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @Getter
@@ -21,6 +22,7 @@ public class JwtUtils {
     @AllArgsConstructor
     public static class JwtData {
         private String username;
+        private String userId;
         private List<String> roles;
     }
 
@@ -30,12 +32,13 @@ public class JwtUtils {
         this.config = config;
     }
 
-    public String signJwt(String username, List<String> roles) {
+    public String signJwt(String username, UUID userId, List<String> roles) {
 
         LocalDate currentDate = LocalDate.now();
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
+                .claim("userId", userId)
                 .setIssuedAt(java.sql.Date.valueOf(currentDate))
                 .setExpiration(java.sql.Date.valueOf(currentDate.plusDays(config.getExpiresIn())))
                 .signWith(config.getSecretKeyAsKey())
@@ -47,6 +50,7 @@ public class JwtUtils {
             Jws<Claims> parsedClaims = Jwts.parser().setSigningKey(config.getSecretKeyAsKey()).parseClaimsJws(token);
             return new JwtData(
                     parsedClaims.getBody().getSubject(),
+                    (String) parsedClaims.getBody().get("userId"),
                     (List<String>) parsedClaims.getBody().get("roles")
             );
         } catch (JwtException ex) {

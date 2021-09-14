@@ -19,8 +19,8 @@ import javax.validation.Payload;
  */
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = EnumConstraint.Validator.class)
-public @interface EnumConstraint {
+@Constraint(validatedBy = IsInEnum.Validator.class)
+public @interface IsInEnum {
 
     String message() default "{custom.value.invalid}";
 
@@ -30,12 +30,12 @@ public @interface EnumConstraint {
 
     Class<? extends Enum<?>> enumClass();
 
-    class Validator implements ConstraintValidator<EnumConstraint, Object> {
+    class Validator implements ConstraintValidator<IsInEnum, Object> {
 
         private List<String> enumEntries;
 
         @Override
-        public void initialize(EnumConstraint enumAnnotation) {
+        public void initialize(IsInEnum enumAnnotation) {
             enumEntries = new ArrayList<String>();
             Class<? extends Enum<?>> enumClass = enumAnnotation.enumClass();
 

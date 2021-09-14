@@ -3,7 +3,6 @@ package com.codegrade.restapi;
 import com.codegrade.restapi.config.SuperUserConfig;
 import com.codegrade.restapi.service.UserService;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,7 @@ public class RestApiApplication {
         log.info("Feeding: data into database");
         log.info("Feeding: super user details");
 
-        userService.getUserByUsername(superUserConfig.getUsername())
+        userService.getUserDetails(superUserConfig.getUsername())
                 .ifPresentOrElse(
                         (user) -> log.info("Feeding: super user admin is already present"),
                         () -> {
