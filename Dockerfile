@@ -1,40 +1,5 @@
-FROM azul/zulu-openjdk-alpine:11 as packager
+FROM adoptopenjdk/openjdk11
 
-RUN { \
-        java --version ; \
-        echo "jlink version:" && \
-        jlink --version ; \
-    }
-
-ENV JAVA_MINIMAL=/opt/jre
-
-# build modules distribution
-RUN jlink \
-    --verbose \
-    --add-modules \
-        java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
-        # java.naming - javax/naming/NamingException
-        # java.desktop - java/beans/PropertyEditorSupport
-        # java.management - javax/management/MBeanServer
-        # java.security.jgss - org/ietf/jgss/GSSException
-        # java.instrument - java/lang/instrument/IllegalClassFormatException
-    --compress 2 \
-    --strip-debug \
-    --no-header-files \
-    --no-man-pages \
-    --output "$JAVA_MINIMAL"
-
-# Second stage, add only our minimal "JRE" distr and our app
-FROM alpine
-
-ENV JAVA_MINIMAL=/opt/jre
-ENV PATH="$PATH:$JAVA_MINIMAL/bin"
-
-COPY --from=packager "$JAVA_MINIMAL" "$JAVA_MINIMAL"
-
-ARG DEPENDENCY=target/dependency
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-
-ENTRYPOINT ["java", "-cp", "app:app/lib/*", "com.codegrade.restapi.RestApiApplication"]
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
