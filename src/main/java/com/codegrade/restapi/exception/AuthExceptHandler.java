@@ -3,6 +3,7 @@ package com.codegrade.restapi.exception;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -18,6 +19,8 @@ import java.io.OutputStream;
 @Component
 @Slf4j
 public class AuthExceptHandler implements AuthenticationFailureHandler {
+
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -27,20 +30,22 @@ public class AuthExceptHandler implements AuthenticationFailureHandler {
         ObjectMapper mapper = new ObjectMapper();
 
         if (BadCredentialsException.class.equals(ex.getClass())) {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
             mapper.writerWithDefaultPrettyPrinter().writeValue(out,
                     RBuilder.badRequest().setMsg("Invalid username or password").compact()
             );
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else if(DisabledException.class.equals(ex.getClass())) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             mapper.writerWithDefaultPrettyPrinter().writeValue(out,
                     RBuilder.badRequest().setMsg("account is disabled").compact()
             );
         } else if (InternalAuthenticationServiceException.class.equals(ex.getClass())) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             mapper.writerWithDefaultPrettyPrinter().writeValue(out,
                     RBuilder.badRequest().setMsg("account is disabled or email is not verified").compact()
             );
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             mapper.writerWithDefaultPrettyPrinter().writeValue(out,
                     RBuilder.error().setData("error", ex.toString()).compact()
             );
