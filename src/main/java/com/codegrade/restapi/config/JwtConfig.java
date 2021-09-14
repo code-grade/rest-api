@@ -2,6 +2,7 @@ package com.codegrade.restapi.config;
 
 import com.google.common.net.HttpHeaders;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import javax.crypto.SecretKey;
 
 @Component
 @Getter @Setter
-@NoArgsConstructor
+@NoArgsConstructor @AllArgsConstructor
 @ConfigurationProperties("auth.jwt")
 public class JwtConfig {
 
