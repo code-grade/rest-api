@@ -2,6 +2,7 @@ package com.codegrade.restapi.utils;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
+@Getter
 public class RBuilder {
 
     private Object data;
@@ -29,6 +31,10 @@ public class RBuilder {
 
     public static RBuilder badRequest() {
         return new RBuilder("Bad request", HttpStatus.BAD_REQUEST);
+    }
+
+    public static RBuilder unauthorized(String msg) {
+        return new RBuilder("Unauthorized", HttpStatus.UNAUTHORIZED).setMsg(msg);
     }
 
     public static RBuilder unauthorized() {
