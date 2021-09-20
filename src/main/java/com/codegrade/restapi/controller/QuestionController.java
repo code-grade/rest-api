@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -23,7 +24,7 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_INSTRUCTOR")
     @GetMapping(path = "/auth/question/all")
     public Map<String, Object> getAllQuestions() {
 
@@ -34,7 +35,7 @@ public class QuestionController {
                 .compact();
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_INSTRUCTOR")
     @GetMapping(path = "/auth/question/{questionId}")
     public Map<String, Object> getQuestion(@PathVariable String questionId) {
 
@@ -48,7 +49,7 @@ public class QuestionController {
                 .compact();
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_INSTRUCTOR")
     @PostMapping(path = "/auth/question")
     public Map<String, Object> addQuestion(@Valid @RequestBody Question question) {
 
@@ -59,18 +60,18 @@ public class QuestionController {
                 .compact();
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_INSTRUCTOR")
     @PutMapping(path = "/auth/question/{questionId}")
     public Map<String,Object> editQuestion(@Valid @PathVariable String questionId, @RequestBody Question question){
-
+        question.setQuestionId(UUID.fromString(questionId));
         return RBuilder.success()
                 .setData(
-                        questionService.editQuestion(UUID.fromString(questionId),question)
+                        questionService.editQuestion(question)
                 )
                 .compact();
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_INSTRUCTOR")
     @DeleteMapping(path = "/auth/question/{questionId}")
     public void deleteQuestion(@Valid @PathVariable String questionId){
 

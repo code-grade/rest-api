@@ -1,7 +1,7 @@
 package com.codegrade.restapi.service;
 
 import com.codegrade.restapi.entity.Question;
-import com.codegrade.restapi.repository.QuestionRepository;
+import com.codegrade.restapi.repository.QuestionRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +13,30 @@ import java.util.UUID;
 @AllArgsConstructor
 public class QuestionService {
 
-    private final QuestionRepository questionRepository;
+    private final QuestionRepo questionRepo;
 
     public List<Question> getAllQuestions(){
 
-        return questionRepository.findAll();
+        return questionRepo.findAll();
     }
 
     public Optional<Question> getQuestion(UUID questionId){
 
-        return questionRepository.findById(questionId);
+        return questionRepo.findById(questionId);
     }
 
     public Question addQuestion(Question newQuestion){
 
-        return questionRepository.save(newQuestion);
+        return questionRepo.save(newQuestion);
     }
 
-    public Question editQuestion(UUID questionId,Question editQuestion){
+    public Question editQuestion(Question editQuestion){
 
-        var eQuestion= questionRepository.findById(questionId);
-        return questionRepository.save(editQuestion);
+        return questionRepo.save(editQuestion);
     }
 
     public void deleteQuestion(UUID questionId){
 
-        questionRepository.deleteById(questionId);
+        questionRepo.deleteById(questionId);
     }
 }
