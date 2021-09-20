@@ -69,7 +69,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication auth) throws IOException {
-        String token = jwtUtils.signJwt(
+        String token = jwtUtils.signAuthJwt(
                 auth.getName(),
                 ((AppUser) auth.getPrincipal()).getUserId(),
                 auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())

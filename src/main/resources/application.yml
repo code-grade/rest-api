@@ -8,20 +8,32 @@ server:
     include-stacktrace: always
     include-exception: false
 
-
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    defer-datasource-initialization: true
   datasource:
     url: "jdbc:postgresql://localhost:5432/code-grade"
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: code.grade.dev@gmail.com
+    password: calbczrhcavneogl
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+  sql:
+    init:
+      mode: always
+
 
 auth:
   super-admin:
@@ -30,3 +42,4 @@ auth:
   jwt:
     secretKey: 9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l
     expiresIn: 14
+

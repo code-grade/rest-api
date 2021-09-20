@@ -1,18 +1,19 @@
 package com.codegrade.restapi.service;
 
-import com.codegrade.restapi.entity.UserAccount;
+import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.exception.ApiException;
-import com.codegrade.restapi.repository.UserAccountRepo;
+import com.codegrade.restapi.repository.EmailRepo;
+import com.codegrade.restapi.repository.UserRepo;
 import com.codegrade.restapi.utils.BPEncoder;
 import com.codegrade.restapi.utils.RBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,55 +23,70 @@ import java.util.UUID;
 @Slf4j
 public class UserService implements UserDetailsService {
 
-    private final UserAccountRepo userAccRepo;
+    private final UserRepo userRepo;
+    private final EmailRepo emailRepo;
     private final BPEncoder bpEncoder;
+    private final MailService mailService;
 
-    public List<UserAccount> getAllUsers() {
-        return userAccRepo.findAll();
-    };
-
-    public Optional<UserAccount> getUserDetails(UUID userId) {
-        return userAccRepo.findById(userId);
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
     }
 
-    public Optional<UserAccount> getUserDetails(String username) {
-        return userAccRepo.findByUsername(username);
+    public Optional<User> getUserDetails(UUID userId) {
+        return userRepo.findById(userId);
     }
 
-    public UserAccount addUser(UserAccount newUser) {
-        var user = userAccRepo.findByUsername(newUser.getUsername());
+    public Optional<User> getUserDetails(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Transactional
+    public User addUser(User newUser) {
+        // Check for duplicate usernames
+        var user = userRepo.findByUsername(newUser.getUsername());
         if (user.isPresent()) {
             throw new ApiException(RBuilder.badRequest()
                     .setMsg("username is already in use")
             );
         }
 
+        // check for duplicate email addresses
+        var newEmail = newUser.getEmail();
+        emailRepo.findById(newEmail.getEmail()).ifPresent((var email) -> {
+            throw new ApiException(RBuilder.badRequest("email address is already in use"));
+        });
+
+        // adding new user and email address
         try {
+            // persist email address
+            emailRepo.saveAndFlush(newEmail);
+
+            // persist user data
             newUser.setPassword(bpEncoder.encode(newUser.getPassword()));
-            return userAccRepo.save(newUser);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApiException(RBuilder.badRequest()
-                    .setMsg("email address is already in use")
-            );
+            newUser = userRepo.save(newUser);
+            mailService.verificationEmail(newUser.getUsername(), newUser.getEmail().getEmail());
+            return newUser;
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            throw new ApiException(RBuilder.error());
         }
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        UserAccount user = this.getUserDetails(username)
+        User user = this.getUserDetails(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
-
         return AppUser.appUserBuilder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRole().name())
+                .roles(user.getRole().getRole())
                 .disabled(!user.getIsEnabled())
                 .build();
     }
 
-    public UserAccount updateUser(UserAccount user) {
-        return userAccRepo.save(user);
+    public User updateUser(User user) {
+        return userRepo.save(user);
     }
+
 }

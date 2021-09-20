@@ -28,6 +28,7 @@ public class Question {
 
     private String subject;
     private String description;
+    private String difficulty;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
