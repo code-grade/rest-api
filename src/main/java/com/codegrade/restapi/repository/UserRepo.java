@@ -1,16 +1,15 @@
 package com.codegrade.restapi.repository;
 
-import com.codegrade.restapi.entity.UserAccount;
+import com.codegrade.restapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserAccountRepo extends JpaRepository<UserAccount, UUID> {
+public interface UserRepo extends JpaRepository<User, UUID> {
 
-    Optional<UserAccount> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
 }

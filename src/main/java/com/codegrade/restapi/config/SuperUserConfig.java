@@ -1,6 +1,7 @@
 package com.codegrade.restapi.config;
 
-import com.codegrade.restapi.entity.UserAccount;
+import com.codegrade.restapi.entity.Email;
+import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,11 +21,11 @@ public class SuperUserConfig {
     private String lastName = "User";
     private String email = "admin@code-grade.com";
 
-    public UserAccount getUserAccount() {
-        return new UserAccount(
-                null, username, password, email,
+    public User getUserAccount() {
+        return new User(
+                null, username, password, new Email(email),
                 firstName, lastName,
-                UserRole.ADMIN, true, true
+                UserRole.ADMIN, true
         );
     }
 }

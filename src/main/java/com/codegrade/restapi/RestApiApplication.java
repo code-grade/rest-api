@@ -11,13 +11,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Slf4j
 @SpringBootApplication
+@EnableAsync
 @EnableConfigurationProperties
 @RequiredArgsConstructor
-@Getter
-@Setter
+@Getter @Setter
 public class RestApiApplication {
 
     private final UserService userService;
@@ -31,7 +32,6 @@ public class RestApiApplication {
     public void feedRequiredDataToDatabase() {
         log.info("Feeding: data into database");
         log.info("Feeding: super user details");
-
         userService.getUserDetails(superUserConfig.getUsername())
                 .ifPresentOrElse(
                         (user) -> log.info("Feeding: super user admin is already present"),

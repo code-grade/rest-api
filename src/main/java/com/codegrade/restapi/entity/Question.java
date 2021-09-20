@@ -26,10 +26,9 @@ public class Question {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID questionId;
 
-    private String title;
+    private String subject;
     private String description;
-    private String dificulty;
-    private int points;
+    private String difficulty;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")

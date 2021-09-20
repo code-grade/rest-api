@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UserAccountRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
-    private UserAccountRepo userAccountRepository;
+    private UserRepo userRepository;
 
     @Test
     public void addUser() {
