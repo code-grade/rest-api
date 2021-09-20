@@ -18,6 +18,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,6 +39,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
+        corsConfiguration.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE",
+                "PUT","OPTIONS","PATCH", "DELETE"
+        ));
+        corsConfiguration.setAllowedOrigins(List.of("*"));
+        corsConfiguration.setAllowCredentials(false);
+
         JWTAuthenticationFilter authenticator = new JWTAuthenticationFilter(
                 authenticationManager(), jwtUtils,
                 authenticationFailureHandler()
@@ -45,6 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 // CSRF Certificate & Session
+                .cors().configurationSource(request -> corsConfiguration)
+                .and()
                 .csrf().disable()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -61,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/auth/user").permitAll()
                 .anyRequest()
                 .authenticated();
+
     }
 
     @Override
