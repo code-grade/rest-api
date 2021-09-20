@@ -16,10 +16,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RestController;
+
+
 @Getter
 @Setter
 @AllArgsConstructor
 @RestController
+@Validated
 public class QuestionController {
 
     private final QuestionService questionService;
@@ -77,4 +85,5 @@ public class QuestionController {
 
         questionService.deleteQuestion(UUID.fromString(questionId));
     }
+
 }

@@ -2,9 +2,10 @@ package com.codegrade.restapi.exception;
 
 import com.codegrade.restapi.utils.RBuilder;
 import lombok.Getter;
+import org.springframework.security.core.AuthenticationException;
 
 @Getter
-public class ApiException extends RuntimeException {
+public class ApiException extends AuthenticationException {
 
     private final RBuilder rBuilder;
 
@@ -13,7 +14,7 @@ public class ApiException extends RuntimeException {
     }
 
     public ApiException(RBuilder rBuilder) {
-        super();
+        super(rBuilder.getMessage());
         this.rBuilder = rBuilder;
     }
 

@@ -1,5 +1,6 @@
 package com.codegrade.restapi.config;
 
+import com.codegrade.restapi.exception.AuthEntryPoint;
 import com.codegrade.restapi.exception.AuthExceptHandler;
 import com.codegrade.restapi.filter.JWTAuthenticationFilter;
 import com.codegrade.restapi.filter.JWTAuthorizationFilter;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -68,14 +70,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Filters
                 .addFilter(authenticator)
                 .addFilterAfter(authorizer, JWTAuthenticationFilter.class)
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+                .and()
 
                 // Authorization
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/user").permitAll()
-                .anyRequest()
-                .authenticated();
+                .anyRequest().authenticated();
 
     }
 
@@ -95,5 +98,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationFailureHandler authenticationFailureHandler() {
         return new AuthExceptHandler();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new AuthEntryPoint();
     }
 }
