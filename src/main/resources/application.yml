@@ -11,16 +11,16 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     defer-datasource-initialization: true
   datasource:
-    url: "jdbc:postgresql://localhost:5432/codegrade"
-    username: postgres
-    password: user
+    url: "jdbc:postgresql://localhost:5432/code-grade"
+    username: root
+    password: root
     driver-class-name: org.postgresql.Driver
   mail:
     host: smtp.gmail.com
