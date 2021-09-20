@@ -18,9 +18,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
   datasource:
-    url: "jdbc:postgresql://localhost:5432/code-grade"
-    username: root
-    password: root
+    url: "jdbc:postgresql://localhost:5432/codegrade"
+    username: postgres
+    password: user
     driver-class-name: org.postgresql.Driver
 
 auth:
