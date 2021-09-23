@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +35,13 @@ public class Assignment {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "assignment")
     private List<AssignmentQuestion> questions;
 
-    private String state;
-    private String type;
+    @ManyToOne
+    @JoinColumn(name = "state")
+    private AssignmentState state;
+
+    @ManyToOne
+    @JoinColumn(name = "type")
+    private AssignmentType type;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date openTime;
