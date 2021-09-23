@@ -18,7 +18,4 @@ public class ApiException extends AuthenticationException {
         this.rBuilder = rBuilder;
     }
 
-
-
-
 }
