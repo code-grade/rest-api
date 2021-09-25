@@ -40,11 +40,15 @@ public class User {
     private String lastName = "";
 
     @ManyToOne
-    @JoinColumn(name = "user_role", referencedColumnName = "role")
+    @JoinColumn(name = "role")
     private @Valid UserRole role;
 
     @Column(nullable = false)
-    private Boolean isEnabled = false;
+    private Boolean isEnabled = true;
+
+    public User(UUID userId) {
+        this.userId = userId;
+    }
 
     @Override
     public boolean equals(Object o) {

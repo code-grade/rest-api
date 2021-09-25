@@ -7,18 +7,14 @@ import com.codegrade.restapi.utils.RBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +29,7 @@ public class QuestionController {
     private final QuestionService questionService;
 
     @Secured("ROLE_INSTRUCTOR")
-    @GetMapping(path = "/auth/question/all")
+    @GetMapping(path = "/question/all")
     public Map<String, Object> getAllQuestions() {
 
         return RBuilder.success()
@@ -44,7 +40,7 @@ public class QuestionController {
     }
 
     @Secured("ROLE_INSTRUCTOR")
-    @GetMapping(path = "/auth/question/{questionId}")
+    @GetMapping(path = "/question/{questionId}")
     public Map<String, Object> getQuestion(@PathVariable String questionId) {
 
         return RBuilder.success()
@@ -58,18 +54,17 @@ public class QuestionController {
     }
 
     @Secured("ROLE_INSTRUCTOR")
-    @PostMapping(path = "/auth/question")
-    public Map<String, Object> addQuestion(@Valid @RequestBody Question question) {
-
+    @PostMapping(path = "/question")
+    public ResponseEntity<?> addQuestion(@Valid @RequestBody Question question) {
         return RBuilder.success()
-                .setData(
-                       "questionId", questionService.addQuestion(question)
-                )
-                .compact();
+//                .setData(
+//                       "questionId", questionService.create(question)
+//                )
+                .compactResponse();
     }
 
     @Secured("ROLE_INSTRUCTOR")
-    @PutMapping(path = "/auth/question/{questionId}")
+    @PutMapping(path = "/question/{questionId}")
     public Map<String,Object> editQuestion(@Valid @PathVariable String questionId, @RequestBody Question question){
         question.setQuestionId(UUID.fromString(questionId));
         return RBuilder.success()
@@ -80,7 +75,7 @@ public class QuestionController {
     }
 
     @Secured("ROLE_INSTRUCTOR")
-    @DeleteMapping(path = "/auth/question/{questionId}")
+    @DeleteMapping(path = "/question/{questionId}")
     public void deleteQuestion(@Valid @PathVariable String questionId){
 
         questionService.deleteQuestion(UUID.fromString(questionId));

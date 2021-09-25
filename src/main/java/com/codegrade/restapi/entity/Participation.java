@@ -22,12 +22,12 @@ public class Participation {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "assignmentId")
+    @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Temporal(TemporalType.TIMESTAMP)

@@ -26,6 +26,10 @@ public class Question {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID questionId;
 
+    @ManyToOne
+    @JoinColumn(name = "instructor_id")
+    private User instructor;
+
     private String title;
     private String description;
     private String difficulty;

@@ -24,12 +24,12 @@ public class AssignmentQuestion {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "assignmentId")
+    @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "questionId")
+    @JoinColumn(name = "question_id")
     private Question question;
 
 }

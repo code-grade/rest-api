@@ -4,15 +4,15 @@ import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.service.UserService;
-import com.codegrade.restapi.utils.IsUUID;
+import com.codegrade.restapi.utils.AuthContext;
+import com.codegrade.restapi.utils.validator.OptionalUUID;
 import com.codegrade.restapi.utils.RBuilder;
+import com.codegrade.restapi.utils.validator.ValidUUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,27 +41,25 @@ public class AuthController {
     /**
      * Get user details
      */
-    @Secured({UserRole.ROLE_ADMIN, UserRole.ROLE_STUDENT, UserRole.ROLE_INSTRUCTOR})
     @GetMapping(path = {"/auth/user", "/auth/user/{userId}"})
-    public ResponseEntity<?> getUserInfo(
-            @PathVariable(value = "userId", required = false) Optional<String> reqUserId
-    ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UUID userId;
-        if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(UserRole.ROLE_ADMIN))) {
-            userId = UUID.fromString(reqUserId.orElse(authentication.getName()));
-        } else {
-            if (reqUserId.isPresent() && !reqUserId.get().equals(authentication.getName())) {
-                throw new ApiException(RBuilder.unauthorized());
-            }
-            userId = UUID.fromString(authentication.getName());
+    public ResponseEntity<?> getUserDetails(
+            @OptionalUUID(message = "invalid user id")
+            @PathVariable(value = "userId", required = false)
+                    Optional<String> userId) {
+
+        var context = AuthContext.fromContextHolder();
+
+        // Try to access user data and user is not an admin
+        if ( userId.isPresent() && !context.isAdmin() && !context.matchesUserId(userId)) {
+            throw new ApiException(RBuilder.unauthorized());
         }
+
+        var uid = userId.filter(s -> context.isAdmin()).map(UUID::fromString).orElse(context.getUserId());
 
         return RBuilder.success()
                 .setData(
                         User.UserWithoutPass.fromUser(
-                                userService.getUserDetails((UUID) userId)
+                                userService.getUserDetails(uid)
                                         .orElseThrow(() -> ApiException.withRBuilder(
                                                 RBuilder.notFound().setMsg("User not found")
                                         )))
@@ -82,33 +80,30 @@ public class AuthController {
     }
 
 
+    @Secured({ UserRole.ROLE_ADMIN, UserRole.ROLE_INSTRUCTOR, UserRole.ROLE_STUDENT })
+    @PutMapping(path = "/auth/user")
+    public ResponseEntity<?> updateUserDetails(@RequestBody User user) {
+        var context = AuthContext.fromContextHolder();
+        return RBuilder.success()
+                .setData(userService.updateUser(context.getUserId(), user))
+                .compactResponse();
+    };
+
     @Secured(UserRole.ROLE_ADMIN)
     @PutMapping(path = "/auth/user/{userId}/enable/{enabled}")
-    public Map<String, Object> changeUserState(
-            @PathVariable("userId") @IsUUID(message = "invalid user id") String userId,
+    public ResponseEntity<?> changeUserState(
+            @PathVariable("userId") @ValidUUID(message = "invalid user id") String userId,
             @PathVariable("enabled") Boolean enabled
     ) {
-
-        var user = userService.getUserDetails(UUID.fromString(userId))
-                .orElseThrow(() -> ApiException.withRBuilder(RBuilder.notFound("userId is not exists")));
-
-        if (user.getIsEnabled() == enabled) {
-            throw ApiException.withRBuilder(RBuilder
-                    .badRequest("user account is already " + (enabled ? "enabled" : "disabled"))
-                    .setData(User.UserWithoutPass.fromUser(user))
-            );
-        }
-
-        user.setIsEnabled(enabled);
         return RBuilder.success()
-                .setData(User.UserWithoutPass.fromUser(userService.updateUser(user)))
-                .compact();
+                .setData(userService.changeState(UUID.fromString(userId), enabled))
+                .compactResponse();
     }
 
     @Secured(UserRole.ROLE_ADMIN)
     @PutMapping(path = "/auth/user/{userId}")
     public Map<String, Object> updateUserDetails(
-            @PathVariable("userId") @IsUUID(message = "invalid user id") String userId,
+            @PathVariable("userId") @ValidUUID(message = "invalid user id") String userId,
             @RequestBody User user,
             Principal principal
     ) {

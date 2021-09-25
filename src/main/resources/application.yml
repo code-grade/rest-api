@@ -11,7 +11,7 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -22,6 +22,9 @@ spring:
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: embedded
   mail:
     host: smtp.gmail.com
     port: 587
@@ -30,9 +33,6 @@ spring:
     properties.mail.smtp:
       auth: true
       starttls.enable: true
-  sql:
-    init:
-      mode: always
 
 
 auth:
