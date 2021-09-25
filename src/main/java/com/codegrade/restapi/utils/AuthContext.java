@@ -68,4 +68,7 @@ public class AuthContext {
         return userId.equals(this.auth.getName());
     }
 
+    public boolean matchUserId(UUID userId) {
+        return userId.toString().equals(this.auth.getName());
+    }
 }

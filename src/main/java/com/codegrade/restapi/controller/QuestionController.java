@@ -1,9 +1,12 @@
 package com.codegrade.restapi.controller;
 
 import com.codegrade.restapi.entity.Question;
+import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.service.QuestionService;
+import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.RBuilder;
+import com.codegrade.restapi.utils.validator.ValidUUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.validation.annotation.Validated;
@@ -31,35 +35,45 @@ public class QuestionController {
     @Secured("ROLE_INSTRUCTOR")
     @GetMapping(path = "/question/all")
     public Map<String, Object> getAllQuestions() {
-
         return RBuilder.success()
-                .setData(
-                        questionService.getAllQuestions()
-                )
+                .setData(questionService.getAllQuestions())
                 .compact();
     }
 
     @Secured("ROLE_INSTRUCTOR")
     @GetMapping(path = "/question/{questionId}")
-    public Map<String, Object> getQuestion(@PathVariable String questionId) {
+    public ResponseEntity<?> getQuestion(
+            @PathVariable("questionId") @ValidUUID String questionId,
+            @RequestParam(value = "complete", required = false) Optional<Boolean> complete
+    ) {
+        AuthContext context = AuthContext.fromContextHolder();
+        Question question = questionService.getQuestion(UUID.fromString(questionId));
+        if (complete.isPresent() && complete.get()) {
+           if (context.matchUserId(question.getInstructor().getUserId())) {
+               return RBuilder.success()
+                       .setData(Question.JustInstructorId.fromQuestion(question))
+                       .compactResponse();
+           } else {
+               throw new ApiException(RBuilder.unauthorized());
+           }
+        }
 
         return RBuilder.success()
-                .setData(
-                        questionService.getQuestion(UUID.fromString(questionId))
-                                .orElseThrow(() -> ApiException.withRBuilder(
-                                        RBuilder.notFound().setMsg("Question not found")
-                                ))
-                )
-                .compact();
+                .setData(Question.NoTestCase.fromQuestion(question))
+                .compactResponse();
     }
 
     @Secured("ROLE_INSTRUCTOR")
     @PostMapping(path = "/question")
     public ResponseEntity<?> addQuestion(@Valid @RequestBody Question question) {
+        AuthContext context = AuthContext.fromContextHolder();
         return RBuilder.success()
-//                .setData(
-//                       "questionId", questionService.create(question)
-//                )
+                .setData(
+                        questionService.create(
+                                new User(context.getUserId()),
+                                question
+                        )
+                )
                 .compactResponse();
     }
 

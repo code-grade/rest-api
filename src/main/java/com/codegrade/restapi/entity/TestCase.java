@@ -11,7 +11,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestCase implements Serializable {
-    private long id;
+    private Long id;
     private String input;
     private String output;
+    private Long timeLimit;
+    private Integer points;
+    private Boolean sample = false;
 }

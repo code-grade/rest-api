@@ -1,10 +1,7 @@
 package com.codegrade.restapi.entity;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -33,13 +30,56 @@ public class Question {
     private String title;
     private String description;
     private String difficulty;
-    private int points;
+    private Integer totalPoints;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private List<TestCase> testCases;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
-    private List<TestCase> evaluationCases;
+    @Data
+    @AllArgsConstructor
+    static public class JustInstructorId {
+        private UUID questionId;
+        private UUID instructorId;
+        private String title;
+        private String description;
+        private String difficulty;
+        private Integer totalPoints;
+        private List<TestCase> testCases;
+
+        public static JustInstructorId fromQuestion(Question q) {
+           return new JustInstructorId(
+                   q.getQuestionId(),
+                   q.getInstructor().getUserId(),
+                   q.getTitle(),
+                   q.getDescription(),
+                   q.getDifficulty(),
+                   q.getTotalPoints(),
+                   q.getTestCases()
+           );
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    static public class NoTestCase {
+        private UUID questionId;
+        private UUID instructorId;
+        private String title;
+        private String description;
+        private String difficulty;
+        private Integer totalPoints;
+
+        public static NoTestCase fromQuestion(Question q) {
+            return new NoTestCase(
+                    q.getQuestionId(),
+                    q.getInstructor().getUserId(),
+                    q.getTitle(),
+                    q.getDescription(),
+                    q.getDifficulty(),
+                    q.getTotalPoints()
+            );
+        }
+    }
+
 }
