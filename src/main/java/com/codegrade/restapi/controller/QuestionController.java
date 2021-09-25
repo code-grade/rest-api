@@ -2,6 +2,7 @@ package com.codegrade.restapi.controller;
 
 import com.codegrade.restapi.entity.Question;
 import com.codegrade.restapi.entity.User;
+import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.service.QuestionService;
 import com.codegrade.restapi.utils.AuthContext;
@@ -32,22 +33,23 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
-    @Secured("ROLE_INSTRUCTOR")
-    @GetMapping(path = "/question/all")
-    public Map<String, Object> getAllQuestions() {
+    @Secured(UserRole.ROLE_INSTRUCTOR)
+    @GetMapping(path = "/question/instructor")
+    public ResponseEntity<?> getQuestionByInstructor() {
+        var context = AuthContext.fromContextHolder();
         return RBuilder.success()
-                .setData(questionService.getAllQuestions())
-                .compact();
+                .setData(questionService.getQuestionsByInstructor(context.getUserId()))
+                .compactResponse();
     }
 
-    @Secured("ROLE_INSTRUCTOR")
+    @Secured({UserRole.ROLE_INSTRUCTOR, UserRole.ROLE_STUDENT})
     @GetMapping(path = "/question/{questionId}")
     public ResponseEntity<?> getQuestion(
             @PathVariable("questionId") @ValidUUID String questionId,
             @RequestParam(value = "complete", required = false) Optional<Boolean> complete
     ) {
         AuthContext context = AuthContext.fromContextHolder();
-        Question question = questionService.getQuestion(UUID.fromString(questionId));
+        Question question = questionService.getQuestionById(UUID.fromString(questionId));
         if (complete.isPresent() && complete.get()) {
            if (context.matchUserId(question.getInstructor().getUserId())) {
                return RBuilder.success()
@@ -91,7 +93,6 @@ public class QuestionController {
     @Secured("ROLE_INSTRUCTOR")
     @DeleteMapping(path = "/question/{questionId}")
     public void deleteQuestion(@Valid @PathVariable String questionId){
-
         questionService.deleteQuestion(UUID.fromString(questionId));
     }
 

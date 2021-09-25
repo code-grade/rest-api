@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -34,18 +34,20 @@ public class QuestionService {
      * @param questionId - UUID
      * @return Question
      */
-    public Question getQuestion(UUID questionId) {
+    public Question getQuestionById(UUID questionId) {
         return questionRepo.findById(questionId).orElseThrow(
                 () -> new ApiException(RBuilder.notFound("question id is not exist"))
         );
     };
 
     /**
-     * Get question by id
-     * @return - Full question
+     * Get list of question by instructor id
+     * @return - list of question
      */
-    public List<Question> getAllQuestions(){
-        return questionRepo.findAll();
+    public List<Question.NoTestCase> getQuestionsByInstructor(UUID instructorId){
+        User instructor = new User(instructorId);
+        return questionRepo.findQuestionByInstructor(instructor).stream()
+                .map(Question.NoTestCase::fromQuestion).collect(Collectors.toList());
     }
 
 
