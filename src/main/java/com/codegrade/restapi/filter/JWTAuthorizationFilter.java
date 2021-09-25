@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -37,8 +38,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
-
-        log.info("REQUEST: " + request.getRequestURI());
 
         if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
             filterChain.doFilter(request, response);
@@ -65,8 +64,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApiException ex) {
-            if (!request.getRequestURI().equals("/api/auth/user") &&
-                    !request.getRequestURI().equals("/api/auth/login")) {
+            List<String> noAuthPoints = List.of("/api/auth/user", "/api/auth/login", "/api/auth/verify");
+            if (noAuthPoints.stream().noneMatch((p) -> request.getRequestURI().equals(p))) {
                 throw ex;
             }
         }
