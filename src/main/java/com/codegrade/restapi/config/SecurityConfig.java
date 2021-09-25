@@ -78,6 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/user").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/verify").permitAll()
                 .anyRequest().authenticated();
 
     }

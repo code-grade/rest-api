@@ -3,6 +3,7 @@ package com.codegrade.restapi.controller;
 import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.exception.ApiException;
+import com.codegrade.restapi.models.EmailVerificationReq;
 import com.codegrade.restapi.service.UserService;
 import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.validator.OptionalUUID;
@@ -78,15 +79,13 @@ public class AuthController {
                 .compact();
     }
 
-
-    @Secured({ UserRole.ROLE_ADMIN, UserRole.ROLE_INSTRUCTOR, UserRole.ROLE_STUDENT })
     @PutMapping(path = "/auth/user")
     public ResponseEntity<?> updateUserDetails(@RequestBody User user) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
                 .setData(userService.updateUser(context.getUserId(), user))
                 .compactResponse();
-    };
+    }
 
     @Secured(UserRole.ROLE_ADMIN)
     @PutMapping(path = "/auth/user/{userId}/enable/{enabled}")
@@ -96,6 +95,22 @@ public class AuthController {
     ) {
         return RBuilder.success()
                 .setData(userService.changeState(UUID.fromString(userId), enabled))
+                .compactResponse();
+    }
+
+
+    @PostMapping(path = "/auth/verify")
+    public ResponseEntity<?> verifyEmailAddress(@RequestBody EmailVerificationReq req) {
+        return RBuilder.success()
+                .setData(userService.verifyEmailAddress(req.getToken()))
+                .compactResponse();
+    }
+
+    @PostMapping(path = "/auth/verify-req")
+    public ResponseEntity<?> verifyEmailTokenRequest() {
+        var context = AuthContext.fromContextHolder();
+        return RBuilder.success("verification email has sent")
+                .setData(userService.sendVerificationRequest(context.getUserId()))
                 .compactResponse();
     }
 

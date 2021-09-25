@@ -111,6 +111,22 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Send verification email again
+     * @param userId - send verification email
+     * @return - Email
+     */
+    public Email sendVerificationRequest(UUID userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ApiException(RBuilder.badRequest("incorrect user id")));
+        var email = user.getEmail();
+        if (email.getVerified()) {
+            throw new ApiException(RBuilder.badRequest("associated email address is already verified"));
+        }
+        mailService.verificationEmail(user.getUsername(), email.getEmail());
+        return emailRepo.save(email);
+    }
+
+    /**
      * Change user state, either enabled or disabled
      * @param userId - user id
      * @param enabled - Boolean | enable or disabled

@@ -68,9 +68,9 @@ public class JwtUtils {
                     (String) parsedClaims.getBody().get("email")
             );
         } catch (JwtException ex) {
-            throw new ApiException(RBuilder.badRequest().setMsg("expired or corrupted authorization token"));
+            throw new ApiException(RBuilder.badRequest().setMsg("expired or corrupted verification token"));
         } catch (RuntimeException ex) {
-            throw new ApiException(RBuilder.badRequest().setMsg("invalid authorization token"));
+            throw new ApiException(RBuilder.badRequest().setMsg("invalid verification token"));
         }
     }
 

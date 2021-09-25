@@ -25,6 +25,10 @@ public class RBuilder {
         return new RBuilder("Success", HttpStatus.OK);
     }
 
+    public static RBuilder success(String msg) {
+        return new RBuilder(msg, HttpStatus.OK);
+    }
+
     public static RBuilder badRequest(String msg) {
         return new RBuilder("Bad request", HttpStatus.BAD_REQUEST).setMsg(msg);
     }
