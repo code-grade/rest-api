@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import java.util.Map;
 
 @RestController
@@ -23,12 +24,13 @@ public class InfoController {
         return "Code Grade Backend Rest API";
     }
 
-    @Secured("ROLE_ADMIN")
-    @PostMapping("/mail")
-    public ResponseEntity<Map<String, Object>> sendMailDemo() {
-        mailService.sendSimpleMessage("thilinalakshanmail@gmail.com",
-                "Mail Demo",
-                "Hello welcome to code grade");
-        return RBuilder.success().compactResponse();
-    }
+//    @Secured("ROLE_ADMIN")
+//    @PostMapping("/mail")
+//    public ResponseEntity<Map<String, Object>> sendMailDemo() throws MessagingException {
+////        mailService.sendSimpleMessage("thilinalakshanmail@gmail.com",
+////                "Mail Demo",
+////                "Hello welcome to code grade");
+//        mailService.sendTemplateMessage("thilinalakshanmail@gmail.com");
+//        return RBuilder.success().compactResponse();
+//    }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -87,7 +88,7 @@ public class UserService implements UserDetailsService {
             // persist user data
             newUser.setPassword(bpEncoder.encode(newUser.getPassword()));
             newUser = userRepo.save(newUser);
-            mailService.verificationEmail(newUser.getUsername(), newUser.getEmail().getEmail());
+            mailService.verifyAccount(newUser.getUsername(), newUser.getEmail().getEmail());
             return newUser;
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -122,7 +123,7 @@ public class UserService implements UserDetailsService {
         if (email.getVerified()) {
             throw new ApiException(RBuilder.badRequest("associated email address is already verified"));
         }
-        mailService.verificationEmail(user.getUsername(), email.getEmail());
+        mailService.verifyAccount(user.getUsername(), email.getEmail());
         return emailRepo.save(email);
     }
 

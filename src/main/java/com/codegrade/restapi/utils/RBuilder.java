@@ -53,6 +53,10 @@ public class RBuilder {
         return new RBuilder("Not Found", HttpStatus.NOT_FOUND);
     }
 
+    public static RBuilder error(String msg) {
+        return new RBuilder(msg, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     public static RBuilder error() {
         return new RBuilder("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
