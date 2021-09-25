@@ -24,13 +24,4 @@ public class InfoController {
         return "Code Grade Backend Rest API";
     }
 
-//    @Secured("ROLE_ADMIN")
-//    @PostMapping("/mail")
-//    public ResponseEntity<Map<String, Object>> sendMailDemo() throws MessagingException {
-////        mailService.sendSimpleMessage("thilinalakshanmail@gmail.com",
-////                "Mail Demo",
-////                "Hello welcome to code grade");
-//        mailService.sendTemplateMessage("thilinalakshanmail@gmail.com");
-//        return RBuilder.success().compactResponse();
-//    }
 }

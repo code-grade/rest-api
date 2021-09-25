@@ -70,12 +70,8 @@ public class AuthController {
     @Secured(UserRole.ROLE_ADMIN)
     @GetMapping(path = "/auth/user/all")
     public Map<String, Object> getAllUsers() {
-
         return RBuilder.success()
-                .setData(
-                        userService.getAllUsers().stream()
-                                .map(User.UserWithoutPass::fromUser)
-                )
+                .setData(userService.getAllUsers().stream().map(User.UserWithoutPass::fromUser))
                 .compact();
     }
 
