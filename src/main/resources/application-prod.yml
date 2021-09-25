@@ -4,8 +4,8 @@ server:
     context-path: "/api/"
   error:
     include-message: always
-    include-binding-errors: always
-    include-stacktrace: always
+    include-binding-errors: never
+    include-stacktrace: never
     include-exception: false
 
 spring:
@@ -25,14 +25,6 @@ spring:
   sql:
     init:
       mode: always
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: code.grade.dev@gmail.com
-    password: calbczrhcavneogl
-    properties.mail.smtp:
-      auth: true
-      starttls.enable: true
 
 auth:
   super-admin:

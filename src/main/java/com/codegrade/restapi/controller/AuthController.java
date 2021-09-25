@@ -17,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -100,13 +99,4 @@ public class AuthController {
                 .compactResponse();
     }
 
-    @Secured(UserRole.ROLE_ADMIN)
-    @PutMapping(path = "/auth/user/{userId}")
-    public Map<String, Object> updateUserDetails(
-            @PathVariable("userId") @ValidUUID(message = "invalid user id") String userId,
-            @RequestBody User user,
-            Principal principal
-    ) {
-        return null;
-    }
 }

@@ -2,7 +2,8 @@ INSERT INTO user_role ("role", description)
     VALUES
         ('ADMIN', 'An user with administrator privileges'),
         ('INSTRUCTOR', 'An user who can coordinate students'),
-        ('STUDENT', 'An user who can participate for assignment');
+        ('STUDENT', 'An user who can participate for assignment')
+    ON CONFLICT DO NOTHING;
 
 
 INSERT INTO assignment_state (state)
@@ -12,9 +13,11 @@ INSERT INTO assignment_state (state)
         ('OPEN'),
         ('AUTO_OPEN'),
         ('CLOSED'),
-        ('FINALIZED');
+        ('FINALIZED')
+    ON CONFLICT DO NOTHING;
 
 INSERT INTO assignment_type (type)
     VALUES
         ('PUBLIC'),
-        ('PRIVATE');
+        ('PRIVATE')
+    ON CONFLICT DO NOTHING;

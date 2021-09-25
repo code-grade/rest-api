@@ -34,6 +34,6 @@ jobs:
           cache: maven
       # build application using maven
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: mvn --batch-mode --update-snapshots -Dspring.profiles.active=test verify
         env:
           POSTGRES_HOST: postgres
