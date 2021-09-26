@@ -28,13 +28,20 @@ public class Question {
     private User instructor;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private String difficulty;
     private Integer totalPoints;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private List<TestCase> testCases;
+
+    public Question(UUID questionId) {
+        this.questionId = questionId;
+    }
 
     @Data
     @AllArgsConstructor

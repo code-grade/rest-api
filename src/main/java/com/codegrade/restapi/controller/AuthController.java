@@ -8,7 +8,7 @@ import com.codegrade.restapi.service.UserService;
 import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.validator.OptionalUUID;
 import com.codegrade.restapi.utils.RBuilder;
-import com.codegrade.restapi.utils.validator.ValidUUID;
+import com.codegrade.restapi.utils.validator.VUUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -86,7 +86,7 @@ public class AuthController {
     @Secured(UserRole.ROLE_ADMIN)
     @PutMapping(path = "/auth/user/{userId}/enable/{enabled}")
     public ResponseEntity<?> changeUserState(
-            @PathVariable("userId") @ValidUUID(message = "invalid user id") String userId,
+            @PathVariable("userId") @VUUID(message = "invalid user id") String userId,
             @PathVariable("enabled") Boolean enabled
     ) {
         return RBuilder.success()

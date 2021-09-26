@@ -22,6 +22,13 @@ public class AssignmentState {
     public static String S_CLOSED = "CLOSED";
     public static String S_FINALIZED = "FINALIZED";
 
+    public static AssignmentState DRAFT = new AssignmentState("DRAFT");
+    public static AssignmentState PUBLISHED = new AssignmentState("PUBLISHED");
+    public static AssignmentState OPEN = new AssignmentState("OPEN");
+    public static AssignmentState AUTO_OPEN = new AssignmentState("AUTO_OPEN");
+    public static AssignmentState CLOSED = new AssignmentState("CLOSED");
+    public static AssignmentState FINALIZED = new AssignmentState("FINALIZED");
+
     @Id
     private String state;
 

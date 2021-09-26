@@ -41,7 +41,7 @@ public class AuthContext {
     public User getUser() {
         var user = new User(getUserId());
         user.setRole(new UserRole(this.userRole));
-       return new User();
+        return user;
     }
 
     public boolean is(String role) {

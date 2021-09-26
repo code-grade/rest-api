@@ -7,7 +7,7 @@ import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.service.QuestionService;
 import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.RBuilder;
-import com.codegrade.restapi.utils.validator.ValidUUID;
+import com.codegrade.restapi.utils.validator.VUUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +45,7 @@ public class QuestionController {
     @Secured({UserRole.ROLE_INSTRUCTOR, UserRole.ROLE_STUDENT})
     @GetMapping(path = "/question/{questionId}")
     public ResponseEntity<?> getQuestion(
-            @PathVariable("questionId") @ValidUUID String questionId,
+            @PathVariable("questionId") @VUUID String questionId,
             @RequestParam(value = "complete", required = false) Optional<Boolean> complete
     ) {
         AuthContext context = AuthContext.fromContextHolder();

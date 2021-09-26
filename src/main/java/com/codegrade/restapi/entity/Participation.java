@@ -1,27 +1,31 @@
 package com.codegrade.restapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 
 @Entity
 @Table(name = "participation")
 @IdClass(Participation.ParticipationId.class)
+@AllArgsConstructor @NoArgsConstructor
+@Getter @Setter @Builder
 public class Participation {
 
     @Getter @Setter
     @AllArgsConstructor @NoArgsConstructor
     static public class ParticipationId implements Serializable {
-        private User user;
-        private Assignment assignment;
+        private UUID user;
+        private UUID assignment;
     }
-
 
     @Id
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
@@ -32,5 +36,4 @@ public class Participation {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date enrollmentDate = new Date();
-
 }

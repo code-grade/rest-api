@@ -7,10 +7,13 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.UUID;
 
-@Entity
-@Table(name = "assignment_questions")
-@IdClass(AssignmentQuestion.AssignmentQuestionId.class)
+//@Entity
+//@Table(name = "assignment_questions")
+//@IdClass(AssignmentQuestion.AssignmentQuestionId.class)
+//@AllArgsConstructor @NoArgsConstructor
+//@Getter @Setter
 public class AssignmentQuestion {
 
     @Getter
@@ -18,18 +21,14 @@ public class AssignmentQuestion {
     @AllArgsConstructor
     @NoArgsConstructor
     static public class AssignmentQuestionId implements Serializable {
-        private Assignment assignment;
-        private Question question;
+        private UUID assignmentId;
+        private UUID questionId;
     }
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "assignment_id")
-    private Assignment assignment;
+    private UUID assignmentId;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "question_id")
-    private Question question;
+    private UUID questionId;
 
 }
