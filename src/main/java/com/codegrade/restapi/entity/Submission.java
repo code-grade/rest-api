@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -23,19 +25,24 @@ public class Submission {
     private UUID submissionId;
 
     @ManyToOne
-    @JoinColumn(name = "assignmentId")
+    @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 
     @ManyToOne
-    @JoinColumn(name = "questionId")
+    @JoinColumn(name = "question_id")
     private Question question;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
-    private String source;
+    @Embedded
+    private SourceCode sourceCode;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private List<TestCaseResult> results;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date submissionTime;
+    private Date submittedTime = new Date();
 }

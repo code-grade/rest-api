@@ -57,6 +57,18 @@ public class Assignment {
         this.assignmentId = assignmentId;
     }
 
+    /**
+     * Whether that the assignment is accepting student submissions
+     * @return - true - accept | false - not accept
+     */
+    public Boolean isOpen() {
+       if (openTime == null || closeTime == null) {
+           return state == AssignmentState.OPEN;
+       }
+       var currentTime = new Date();
+       return openTime.compareTo(currentTime) < 0 && closeTime.compareTo(currentTime) > 0;
+    }
+
     @Data
     @AllArgsConstructor
     public static class LightWeight {
