@@ -6,15 +6,13 @@ import com.codegrade.restapi.repository.AssignmentRepo;
 import com.codegrade.restapi.repository.ParticipationRepo;
 import com.codegrade.restapi.repository.QuestionRepo;
 import com.codegrade.restapi.utils.RBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +24,7 @@ public class AssignmentService {
     private final AssignmentRepo assignmentRepo;
     private final QuestionRepo questionRepo;
     private final ParticipationRepo participationRepo;
+    private final ObjectMapper objectMapper;
 
     /**
      * Create new assignment
@@ -62,10 +61,14 @@ public class AssignmentService {
      * @param assignmentId - UUID
      * @return assignment details
      */
-    public Assignment.WithQuestions getAssignmentById(UUID assignmentId) {
-        return assignmentRepo.findById(assignmentId)
-                .map(Assignment.WithQuestions::fromAssignment)
+    public Map<String, Object> getAssignmentById(UUID assignmentId) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+        Set<UUID> participants = participationRepo.findParticipationByAssignment(assignment).stream()
+                .map(p -> p.getUser().getUserId()).collect(Collectors.toSet());
+        Map<String, Object> response = objectMapper.convertValue(Assignment.WithQuestions.fromAssignment(assignment), Map.class);
+        response.put("participants", participants);
+        return response;
     }
 
 

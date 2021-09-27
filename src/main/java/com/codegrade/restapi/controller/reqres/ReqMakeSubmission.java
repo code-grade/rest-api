@@ -1,4 +1,4 @@
-package com.codegrade.restapi.controller.request;
+package com.codegrade.restapi.controller.reqres;
 
 import com.codegrade.restapi.entity.SourceCode;
 import lombok.AllArgsConstructor;

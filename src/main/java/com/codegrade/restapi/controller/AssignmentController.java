@@ -1,6 +1,6 @@
 package com.codegrade.restapi.controller;
 
-import com.codegrade.restapi.controller.request.ReqCreateAssignment;
+import com.codegrade.restapi.controller.reqres.ReqCreateAssignment;
 import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.service.AssignmentService;
 import com.codegrade.restapi.utils.AuthContext;
@@ -10,11 +10,9 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j

@@ -1,9 +1,8 @@
-package com.codegrade.restapi.controller.request;
+package com.codegrade.restapi.controller.reqres;
 
 import com.codegrade.restapi.entity.Assignment;
 import com.codegrade.restapi.entity.AssignmentState;
 import com.codegrade.restapi.entity.AssignmentType;
-import com.codegrade.restapi.entity.Question;
 import com.codegrade.restapi.utils.validator.VAssignmentState;
 import com.codegrade.restapi.utils.validator.VAssignmentType;
 import com.codegrade.restapi.utils.validator.VUUID;
