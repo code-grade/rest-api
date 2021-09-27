@@ -55,6 +55,15 @@ public class AssignmentController {
                 .compactResponse();
     }
 
+    @Secured(UserRole.ROLE_INSTRUCTOR)
+    @GetMapping(path = "/assignment/participate/{assignmentId}")
+    public ResponseEntity<?> getParticipantsById(@PathVariable("assignmentId") @VUUID String assignmentId) {
+        return RBuilder.success()
+                .setData(assignmentService.getParticipantsById(UUID.fromString(assignmentId)))
+                .compactResponse();
+    }
+
+
     @Secured(UserRole.ROLE_STUDENT)
     @PutMapping(path = "/assignment/participate/{assignmentId}")
     public ResponseEntity<?> participate(@PathVariable("assignmentId") @VUUID String assignmentId) {

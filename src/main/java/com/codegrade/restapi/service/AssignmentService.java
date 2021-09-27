@@ -7,6 +7,8 @@ import com.codegrade.restapi.repository.ParticipationRepo;
 import com.codegrade.restapi.repository.QuestionRepo;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.bind.v2.model.core.TypeRef;
+import groovyjarjarasm.asm.TypeReference;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -98,5 +100,18 @@ public class AssignmentService {
               .map(Participation::getAssignment)
               .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
     };
+
+    /**
+     * Get list of participants by assignmentId
+     * @param assignmentId - UUID
+     * @return list of participant users
+     */
+    public List<User.UserWithoutPass> getParticipantsById(UUID assignmentId) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+        return participationRepo.findParticipationByAssignment(assignment).stream()
+                .map(Participation::getUser)
+                .map(User.UserWithoutPass::fromUser).collect(Collectors.toList());
+    }
 
 }
