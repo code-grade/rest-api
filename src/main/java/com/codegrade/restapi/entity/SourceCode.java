@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@ToString
+@ToString @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable

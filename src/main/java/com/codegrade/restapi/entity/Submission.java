@@ -1,15 +1,10 @@
 package com.codegrade.restapi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,12 +32,46 @@ public class Submission {
     private User user;
 
     @Embedded
+    @Column(nullable = false)
     private SourceCode sourceCode;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
-    private List<TestCaseResult> results;
+    @Embedded
+    @Column(nullable = false)
+    private SubmissionResult result = new SubmissionResult();
 
+    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date submittedTime = new Date();
+
+    public Submission(Assignment assignment, Question question, User user, SourceCode sourceCode) {
+        this.assignment = assignment;
+        this.question = question;
+        this.user = user;
+        this.sourceCode = sourceCode;
+    }
+
+    @Data
+    @NoArgsConstructor @AllArgsConstructor
+    @Builder
+    public static class LightWeight {
+        private UUID submissionId;
+        private UUID assignmentId;
+        private UUID questionId;
+        private UUID userId;
+        private SourceCode sourceCode;
+        private SubmissionResult result;
+        private Date submittedTime;
+
+        public static LightWeight fromSubmission(Submission s) {
+           return LightWeight.builder()
+                   .submissionId(s.submissionId)
+                   .assignmentId(s.getAssignment().getAssignmentId())
+                   .questionId(s.getQuestion().getQuestionId())
+                   .userId(s.getUser().getUserId())
+                   .sourceCode(s.getSourceCode())
+                   .result(s.getResult())
+                   .submittedTime(s.getSubmittedTime()).build();
+        }
+
+    }
 }
