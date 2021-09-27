@@ -17,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Slf4j
 @SpringBootApplication
 @EnableAsync
-//@EnableEurekaClient
+@EnableEurekaClient
 @EnableConfigurationProperties
 @RequiredArgsConstructor
 @Getter @Setter
