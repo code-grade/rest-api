@@ -36,6 +36,11 @@ spring:
       auth: true
       starttls.enable: true
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
 auth:
   super-admin:
     username: admin
