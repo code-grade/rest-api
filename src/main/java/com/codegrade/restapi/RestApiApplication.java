@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Slf4j
 @SpringBootApplication
 @EnableAsync
+@EnableEurekaClient
 @EnableConfigurationProperties
 @RequiredArgsConstructor
 @Getter @Setter

@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,12 +27,14 @@ public class ReqCreateAssignment {
     private @VAssignmentType @NotBlank String type;
     private @VAssignmentState String state = AssignmentState.S_DRAFT;
     private List<@VUUID String> questions = new ArrayList<>();
+    private @Future Date openTime = null;
+    private @Future Date closeTime = null;
 
     public Assignment getAssignment() {
         return new Assignment(null, title, description,
                new HashSet<>(), new HashSet<>(), null,
                 new AssignmentState(state), new AssignmentType(type),
-                null, null
+                openTime, closeTime
         );
     }
 

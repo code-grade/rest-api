@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Getter @Setter
-public class EvaluationService {
+public class SubmissionService {
 
     private final SubmissionRepo submissionRepo;
     private final QuestionRepo questionRepo;

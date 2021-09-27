@@ -9,6 +9,8 @@ server:
     include-exception: false
 
 spring:
+  application:
+    name: api
   jpa:
     hibernate:
       ddl-auto: update
