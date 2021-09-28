@@ -1,0 +1,44 @@
+version: '3'
+services:
+  eureka-server:
+    container_name: code-grade-eureka-server
+    image: thilinatlm/code-grade-eureka-server:latest
+    ports:
+      - "8761:8761"
+    environment:
+      - "server.port=8761"
+      - "spring.profiles.active=prod"
+    network_mode: host
+
+  rest-api:
+    container_name: code-grade-rest-api
+    image: thilinatlm/code-grade:latest
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+    environment:
+      - "spring.profiles.active=prod"
+      - "server.port=8081"
+      - "eureka.client.enabled=true"
+      - "eureka.client.serviceUrl.defaultZone=http://eureka-server:8761/eureka"
+      - "spring.datasource.url=jdbc:postgresql://104.41.146.228:5432/code-grade"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=root"
+    network_mode: host
+
+  python-runtime:
+    container_name: code-grade-runtime-python
+    image: thilinatlm/code-grade-runtime-python:latest
+    ports:
+      - "8101:8101"
+    depends_on:
+      - eureka-server
+    environment:
+      - "spring.profiles.active=prod"
+      - "server.port=8101"
+      - "eureka.client.enabled=true"
+      - "eureka.client.serviceUrl.defaultZone=http://eureka-server:8761/eureka"
+      - "runtime.python-cmd=python3"
+    network_mode: host
+
