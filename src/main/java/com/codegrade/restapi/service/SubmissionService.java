@@ -10,8 +10,11 @@ import com.codegrade.restapi.utils.RBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,4 +59,17 @@ public class SubmissionService {
     }
 
 
+    public List<Submission.WithQuestion> getStudentSubmissionSummary(UUID assignmentId, UUID studentId) {
+        User student = userRepo.findById(studentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid student id")));
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
+        Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
+        return assignment.getQuestions().stream()
+                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUser(assignment, student, maximumPoints)
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .map(Submission.WithQuestion::fromSubmission)
+                .collect(Collectors.toList());
+    }
 }

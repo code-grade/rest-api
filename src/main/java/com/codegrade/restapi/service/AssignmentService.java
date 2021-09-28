@@ -73,14 +73,10 @@ public class AssignmentService {
      * @param assignmentId - UUID
      * @return assignment details
      */
-    public Map<String, Object> getAssignmentById(UUID assignmentId) {
-        Assignment assignment = assignmentRepo.findById(assignmentId)
+    public Assignment.WithQuestions getAssignmentById(UUID assignmentId) {
+        return assignmentRepo.findById(assignmentId)
+                .map(Assignment.WithQuestions::fromAssignment)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
-        Set<UUID> participants = participationRepo.findParticipationByAssignment(assignment).stream()
-                .map(p -> p.getUser().getUserId()).collect(Collectors.toSet());
-        Map<String, Object> response = objectMapper.convertValue(Assignment.WithQuestions.fromAssignment(assignment), Map.class);
-        response.put("participants", participants);
-        return response;
     }
 
 

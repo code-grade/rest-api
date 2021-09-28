@@ -38,6 +38,7 @@ public class ReqCreateAssignment {
     }
 
     public List<UUID> getQuestions() {
-        return questions.stream().map(UUID::fromString).collect(Collectors.toList());
+        return questions.stream().map(UUID::fromString)
+                .collect(Collectors.toList());
     }
 }

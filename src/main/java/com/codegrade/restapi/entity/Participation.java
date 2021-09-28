@@ -36,4 +36,7 @@ public class Participation {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date enrollmentDate = new Date();
+
+    private Double finalGrade;
+    private String feedback;
 }

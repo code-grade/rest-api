@@ -69,4 +69,18 @@ public class SubmissionController {
                 ))
                 .compactResponse();
     }
+
+    @Secured(UserRole.ROLE_INSTRUCTOR)
+    @GetMapping(path = "/submission/summary/{assignmentId}/{studentId}")
+    public ResponseEntity<?> getStudentSubmissionSummary(
+            @PathVariable("assignmentId") @VUUID String assignmentId,
+            @PathVariable("studentId") @VUUID String studentId) {
+        var context = AuthContext.fromContextHolder();
+        return RBuilder.success()
+                .setData(submissionService.getStudentSubmissionSummary(
+                        UUID.fromString(assignmentId),
+                        UUID.fromString(studentId)
+                ))
+                .compactResponse();
+    }
 }

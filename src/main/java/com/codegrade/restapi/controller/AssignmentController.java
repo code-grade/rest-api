@@ -28,9 +28,7 @@ public class AssignmentController {
 
     @Secured(UserRole.ROLE_INSTRUCTOR)
     @PostMapping(path = "/assignment")
-    public ResponseEntity<?> create(
-            @RequestBody @Valid ReqCreateAssignment req
-    ) {
+    public ResponseEntity<?> create(@RequestBody @Valid ReqCreateAssignment req) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
                 .setData(assignmentService.create(
@@ -45,8 +43,7 @@ public class AssignmentController {
     @GetMapping(path = "/assignment")
     public ResponseEntity<?> getByInstructor(
             @RequestParam(value = "state", required = false)
-            @VAssignmentState Optional<String> state
-    ) {
+            @VAssignmentState Optional<String> state) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
                 .setData((state.isPresent())?
@@ -56,7 +53,7 @@ public class AssignmentController {
     }
 
     @GetMapping(path = "/assignment/{assignmentId}")
-    public ResponseEntity<?> getById(@PathVariable("assignmentId") @VUUID String assignmentId) {
+    public ResponseEntity<?> getByAssignmentId(@PathVariable("assignmentId") @VUUID String assignmentId) {
         return RBuilder.success()
                 .setData(assignmentService.getAssignmentById(UUID.fromString(assignmentId)))
                 .compactResponse();

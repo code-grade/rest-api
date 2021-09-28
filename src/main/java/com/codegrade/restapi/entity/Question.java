@@ -89,4 +89,25 @@ public class Question {
         }
     }
 
+
+    @Data
+    @AllArgsConstructor
+    static public class LightWeight {
+        private UUID questionId;
+        private String title;
+        private String description;
+        private String difficulty;
+        private Integer totalPoints;
+
+        public static LightWeight fromQuestion(Question q) {
+            return new LightWeight(
+                    q.getQuestionId(),
+                    q.getTitle(),
+                    q.getDescription(),
+                    q.getDifficulty(),
+                    q.getTotalPoints()
+            );
+        }
+    }
+
 }
