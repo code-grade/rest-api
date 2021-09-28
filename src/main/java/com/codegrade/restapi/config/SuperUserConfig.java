@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor @AllArgsConstructor
 @ConfigurationProperties("auth.super-user")
 public class SuperUserConfig {
+
     private String username = "admin";
     private String password = "admin";
     private String firstName = "Admin";

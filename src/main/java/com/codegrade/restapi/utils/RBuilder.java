@@ -2,7 +2,9 @@ package com.codegrade.restapi.utils;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -106,5 +108,14 @@ public class RBuilder {
 
     public ResponseEntity<Map<String, Object>> compactResponse() {
         return new ResponseEntity<>(this.compact(), this.status);
+    }
+
+    @Getter
+    @Setter
+    @Data
+    @AllArgsConstructor
+    public static class Response {
+        private String message;
+        private Object data;
     }
 }
