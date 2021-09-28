@@ -18,4 +18,5 @@ public class ReqRunCode {
     @NotNull
     private String input;
     private Double timeLimit;
+    private String language;
 }

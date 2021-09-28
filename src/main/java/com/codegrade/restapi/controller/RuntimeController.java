@@ -18,12 +18,13 @@ public class RuntimeController {
 
     private RuntimeService runtimeService;
 
-    @PostMapping("/rt/python/run")
+    @PostMapping("/runtime/run")
     public ResponseEntity<?> runPythonCode(@RequestBody @Valid ReqRunCode reqRunCode) {
        return RBuilder.success()
-               .setData(runtimeService.runPythonCode(
+               .setData(runtimeService.runCode(
                        reqRunCode.getSource(),
-                       reqRunCode.getInput()
+                       reqRunCode.getInput(),
+                       reqRunCode.getLanguage()
                ))
                .compactResponse();
     }
