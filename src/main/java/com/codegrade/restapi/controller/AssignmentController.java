@@ -5,6 +5,7 @@ import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.service.AssignmentService;
 import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.RBuilder;
+import com.codegrade.restapi.utils.validator.VAssignmentState;
 import com.codegrade.restapi.utils.validator.VUUID;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -41,10 +43,15 @@ public class AssignmentController {
 
     @Secured(UserRole.ROLE_INSTRUCTOR)
     @GetMapping(path = "/assignment")
-    public ResponseEntity<?> getByInstructor() {
+    public ResponseEntity<?> getByInstructor(
+            @RequestParam(value = "state", required = false)
+            @VAssignmentState Optional<String> state
+    ) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
-                .setData(assignmentService.getByInstructor(context.getUser()))
+                .setData((state.isPresent())?
+                        assignmentService.getByInstructor(context.getUser(), state.get()) :
+                        assignmentService.getByInstructor(context.getUser()))
                 .compactResponse();
     }
 

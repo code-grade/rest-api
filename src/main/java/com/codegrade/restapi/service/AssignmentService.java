@@ -7,8 +7,6 @@ import com.codegrade.restapi.repository.ParticipationRepo;
 import com.codegrade.restapi.repository.QuestionRepo;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.bind.v2.model.core.TypeRef;
-import groovyjarjarasm.asm.TypeReference;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -55,6 +53,18 @@ public class AssignmentService {
      */
     public List<Assignment.LightWeight> getByInstructor(User instructor) {
         return assignmentRepo.findAssignmentByInstructor(instructor).stream()
+                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toList());
+    }
+
+    /**
+     * Get list of assignments by instructor
+     *
+     * @param instructor - User
+     * @return - List of assignments
+     */
+    public List<Assignment.LightWeight> getByInstructor(User instructor, String assignmentState) {
+        return assignmentRepo
+                .findAssignmentByInstructorAndState(instructor, new AssignmentState(assignmentState)).stream()
                 .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toList());
     }
 

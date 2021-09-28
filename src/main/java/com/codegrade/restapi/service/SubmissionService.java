@@ -26,6 +26,7 @@ public class SubmissionService {
     private final QuestionRepo questionRepo;
     private final AssignmentRepo assignmentRepo;
     private final UserRepo userRepo;
+    private final EvaluationService evaluationService;
 
     public Submission.LightWeight makeSubmission(UUID assignmentId, UUID questionId, User user, SourceCode source) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
@@ -33,6 +34,8 @@ public class SubmissionService {
         Question question = questionRepo.findById(questionId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("questionId is invalid")));
         Submission submission = new Submission(assignment, question, user, source);
+        submission = submissionRepo.save(submission);
+        evaluationService.evaluate(submission);
         return Submission.LightWeight.fromSubmission(submissionRepo.save(submission));
     }
 
@@ -50,11 +53,7 @@ public class SubmissionService {
         User student = userRepo.findById(userId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("userId is incorrect")));
         return getAllSubmissionsByStudent(assignmentId, questionId, student);
-
     }
-
-
-    // 3 evaluate student submission
 
 
 }

@@ -14,7 +14,7 @@ public class TestCase implements Serializable {
     private Long id;
     private String input;
     private String output;
-    private Long timeLimit;
+    private Double timeLimit;
     private Integer points;
     private Boolean sample = false;
 }
