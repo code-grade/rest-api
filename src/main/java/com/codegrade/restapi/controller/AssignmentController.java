@@ -1,6 +1,7 @@
 package com.codegrade.restapi.controller;
 
 import com.codegrade.restapi.controller.reqres.ReqCreateAssignment;
+import com.codegrade.restapi.entity.AssignmentState;
 import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.service.AssignmentService;
 import com.codegrade.restapi.utils.AuthContext;
@@ -27,8 +28,8 @@ public class AssignmentController {
     private final AssignmentService assignmentService;
 
     @Secured(UserRole.ROLE_INSTRUCTOR)
-    @PostMapping(path = "/assignment")
-    public ResponseEntity<?> create(@RequestBody @Valid ReqCreateAssignment req) {
+    @PostMapping(path = "/assignment/create")
+    public ResponseEntity<?> CREATE_Assignment(@RequestBody @Valid ReqCreateAssignment req) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
                 .setData(assignmentService.create(
@@ -40,28 +41,54 @@ public class AssignmentController {
     }
 
     @Secured(UserRole.ROLE_INSTRUCTOR)
-    @GetMapping(path = "/assignment")
-    public ResponseEntity<?> getByInstructor(
-            @RequestParam(value = "state", required = false)
-            @VAssignmentState Optional<String> state) {
+    @PutMapping(path = "/assignment/{assignmentId}/state/{state}")
+    public ResponseEntity<?> CHANGE_AssignmentState(
+            @PathVariable("assignmentId") @VUUID String assignmentId,
+            @PathVariable("state") @VAssignmentState String state) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
-                .setData((state.isPresent())?
-                        assignmentService.getByInstructor(context.getUser(), state.get()) :
-                        assignmentService.getByInstructor(context.getUser()))
+                .setData(
+                        assignmentService.changeAssignmentState(UUID.fromString(assignmentId),
+                                new AssignmentState(state))
+                )
                 .compactResponse();
     }
 
+    @Secured(UserRole.ROLE_STUDENT)
+    @PutMapping(path = "/assignment/participate/{assignmentId}")
+    public ResponseEntity<?> JOIN_Participation(@PathVariable("assignmentId") @VUUID String assignmentId) {
+        var context = AuthContext.fromContextHolder();
+        assignmentService.participateToAssignment(UUID.fromString(assignmentId), context.getUser());
+        return RBuilder.success()
+                .compactResponse();
+    }
+
+
     @GetMapping(path = "/assignment/{assignmentId}")
-    public ResponseEntity<?> getByAssignmentId(@PathVariable("assignmentId") @VUUID String assignmentId) {
+    public ResponseEntity<?> GET_AssignmentById(@PathVariable("assignmentId") @VUUID String assignmentId) {
         return RBuilder.success()
                 .setData(assignmentService.getAssignmentById(UUID.fromString(assignmentId)))
                 .compactResponse();
     }
 
     @Secured(UserRole.ROLE_INSTRUCTOR)
+    @GetMapping(path = "/assignment/instructor")
+    public ResponseEntity<?> GET_AssignmentsByInstructor(
+            @RequestParam(value = "state", required = false)
+            @VAssignmentState Optional<String> state) {
+        var context = AuthContext.fromContextHolder();
+        return RBuilder.success()
+                .setData(state
+                        .map(s -> assignmentService.getByInstructor(context.getUser(), s))
+                        .orElse(assignmentService.getByInstructor(context.getUser())))
+                .compactResponse();
+    }
+
+
+    @Secured(UserRole.ROLE_INSTRUCTOR)
     @GetMapping(path = "/assignment/participate/{assignmentId}")
-    public ResponseEntity<?> getParticipantsById(@PathVariable("assignmentId") @VUUID String assignmentId) {
+    public ResponseEntity<?> GET_ParticipantsByAssignmentId(
+            @PathVariable("assignmentId") @VUUID String assignmentId) {
         return RBuilder.success()
                 .setData(assignmentService.getParticipantsById(UUID.fromString(assignmentId)))
                 .compactResponse();
@@ -69,20 +96,16 @@ public class AssignmentController {
 
 
     @Secured(UserRole.ROLE_STUDENT)
-    @PutMapping(path = "/assignment/participate/{assignmentId}")
-    public ResponseEntity<?> participate(@PathVariable("assignmentId") @VUUID String assignmentId) {
-        var context = AuthContext.fromContextHolder();
-        assignmentService.addParticipant(UUID.fromString(assignmentId), context.getUser());
-        return RBuilder.success()
-                .compactResponse();
-    }
-
-    @Secured(UserRole.ROLE_STUDENT)
     @GetMapping(path = "/assignment/participate")
-    public ResponseEntity<?> getParticipatedAssignments() {
+    public ResponseEntity<?> GET_AssignmentsByParticipant(
+            @RequestParam(value = "state", required = false) @VAssignmentState Optional<String> state
+    ) {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
-                .setData(assignmentService.getAssignmentByStudent(context.getUser()))
+                .setData(state.
+                        map(s -> assignmentService.getAssignmentByStudent(context.getUser(), new AssignmentState(s)))
+                        .orElse(assignmentService.getAssignmentByStudent(context.getUser()))
+                )
                 .compactResponse();
     }
 

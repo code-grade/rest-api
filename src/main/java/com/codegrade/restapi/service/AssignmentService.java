@@ -85,7 +85,7 @@ public class AssignmentService {
      * @param assignmentId - UUID
      * @param student User
      */
-    public void addParticipant(UUID assignmentId, User student) {
+    public void participateToAssignment(UUID assignmentId, User student) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
         Participation part = Participation.builder()
@@ -107,6 +107,12 @@ public class AssignmentService {
               .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
     };
 
+    public Set<Assignment.LightWeight> getAssignmentByStudent(User student, AssignmentState state) {
+        return participationRepo.findParticipationByUser(student).stream()
+                .map(Participation::getAssignment)
+                .filter(as -> as.getState() == state)
+                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
+    };
     /**
      * Get list of participants by assignmentId
      * @param assignmentId - UUID
@@ -120,4 +126,16 @@ public class AssignmentService {
                 .map(User.UserWithoutPass::fromUser).collect(Collectors.toList());
     }
 
+    /**
+     * Change assignment state
+     * @param assignmentId - UUID
+     * @param state - state
+     * @return
+     */
+    public Assignment.LightWeight changeAssignmentState(UUID assignmentId, AssignmentState state) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+        assignment.setState(state);
+        return Assignment.LightWeight.fromAssignment(assignmentRepo.save(assignment));
+    }
 }
