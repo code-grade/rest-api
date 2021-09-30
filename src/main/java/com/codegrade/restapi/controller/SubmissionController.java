@@ -22,7 +22,7 @@ public class SubmissionController {
 
     @Secured(UserRole.ROLE_STUDENT)
     @PostMapping(path = "/submission/{assignmentId}/{questionId}")
-    public ResponseEntity<?> makeSubmission(
+    public ResponseEntity<?> ADD_Submission(
             @PathVariable("assignmentId") @VUUID String assignmentId,
             @PathVariable("questionId") @VUUID String questionId,
             @RequestBody @Valid SourceCode sourceCode) {
@@ -38,9 +38,19 @@ public class SubmissionController {
                 .compactResponse();
     }
 
+    @Secured({UserRole.ROLE_STUDENT, UserRole.ROLE_INSTRUCTOR})
+    @GetMapping(path = "/submission/{submissionId}")
+    public ResponseEntity<?> GET_SubmissionById(
+            @PathVariable("submissionId") @VUUID String submissionId
+    ) {
+        return RBuilder.success()
+                .setData(submissionService.getSubmissionById(UUID.fromString(submissionId)))
+                .compactResponse();
+    }
+
     @Secured({UserRole.ROLE_STUDENT})
     @GetMapping(path = "/submission/{assignmentId}/{questionId}")
-    public ResponseEntity<?> getQuestionSubmissionByStudent(
+    public ResponseEntity<?> GET_AllSubmissionByAssignmentQuestion(
             @PathVariable("assignmentId") @VUUID String assignmentId,
             @PathVariable("questionId") @VUUID String questionId) {
         var context = AuthContext.fromContextHolder();
@@ -56,7 +66,7 @@ public class SubmissionController {
 
     @Secured({UserRole.ROLE_INSTRUCTOR})
     @GetMapping(path = "/submission/{assignmentId}/{questionId}/{studentId}")
-    public ResponseEntity<?> getQuestionSubmissionByStudent(
+    public ResponseEntity<?> GET_AllSubmissionForAQuestionByStudent(
             @PathVariable("assignmentId") @VUUID String assignmentId,
             @PathVariable("questionId") @VUUID String questionId,
             @PathVariable("studentId") @VUUID String studentId) {

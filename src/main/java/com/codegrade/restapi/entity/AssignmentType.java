@@ -15,6 +15,9 @@ public class AssignmentType {
     public static String T_PUBLIC = "PUBLIC";
     public static String T_PRIVATE = "PRIVATE";
 
+    public static AssignmentType PUBLIC = new AssignmentType("PUBLIC");
+    public static AssignmentType PRIVATE = new AssignmentType("PRIVATE");
+
     @Id
     private String type;
 

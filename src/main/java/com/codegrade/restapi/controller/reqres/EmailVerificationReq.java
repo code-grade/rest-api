@@ -1,4 +1,4 @@
-package com.codegrade.restapi.models;
+package com.codegrade.restapi.controller.reqres;
 
 import lombok.*;
 import org.springframework.validation.annotation.Validated;

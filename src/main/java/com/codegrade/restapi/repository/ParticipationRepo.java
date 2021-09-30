@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Set;
 
 public interface ParticipationRepo extends JpaRepository<Participation, Participation.ParticipationId> {
-
     Set<Participation> findParticipationByUser(User student);
-
     Set<Participation> findParticipationByAssignment(Assignment assignment);
 }

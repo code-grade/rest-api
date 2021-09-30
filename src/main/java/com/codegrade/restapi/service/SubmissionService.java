@@ -72,4 +72,10 @@ public class SubmissionService {
                 .map(Submission.WithQuestion::fromSubmission)
                 .collect(Collectors.toList());
     }
+
+    public Submission.LightWeight getSubmissionById(UUID submissionId) {
+        return submissionRepo.findById(submissionId)
+                .map(Submission.LightWeight::fromSubmission)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid submission id")));
+    }
 }

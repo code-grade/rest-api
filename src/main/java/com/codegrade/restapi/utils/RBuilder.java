@@ -63,6 +63,13 @@ public class RBuilder {
         return new RBuilder("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    public static RBuilder locked(String msg) {
+        return new RBuilder(msg, HttpStatus.LOCKED);
+    }
+
+    public static RBuilder locked() {
+        return new RBuilder("Resource is locked", HttpStatus.LOCKED);
+    }
 
     private RBuilder(String message, HttpStatus status) {
         this.message = message;

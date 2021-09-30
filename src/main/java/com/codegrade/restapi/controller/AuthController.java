@@ -3,7 +3,7 @@ package com.codegrade.restapi.controller;
 import com.codegrade.restapi.entity.User;
 import com.codegrade.restapi.entity.UserRole;
 import com.codegrade.restapi.exception.ApiException;
-import com.codegrade.restapi.models.EmailVerificationReq;
+import com.codegrade.restapi.controller.reqres.EmailVerificationReq;
 import com.codegrade.restapi.service.UserService;
 import com.codegrade.restapi.utils.AuthContext;
 import com.codegrade.restapi.utils.validator.OptionalUUID;

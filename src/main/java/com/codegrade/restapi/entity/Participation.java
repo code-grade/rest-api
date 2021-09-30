@@ -21,6 +21,10 @@ public class Participation {
     static public class ParticipationId implements Serializable {
         private UUID user;
         private UUID assignment;
+
+        public static ParticipationId fromIds(UUID userId, UUID assignmentId) {
+            return new ParticipationId(userId, assignmentId);
+        }
     }
 
     @Id
@@ -37,6 +41,22 @@ public class Participation {
     @Temporal(TemporalType.TIMESTAMP)
     private Date enrollmentDate = new Date();
 
-    private Double finalGrade;
-    private String feedback;
+    @Embedded
+    private FinalGrade finalGrade;
+
+    @Data
+    @AllArgsConstructor @NoArgsConstructor
+    public static class LightWeight {
+        private User.UserWithoutPass user;
+        private Date enrollmentDate;
+        private FinalGrade finalGrade;
+
+        public static LightWeight fromParticipation(Participation p) {
+            return new LightWeight(
+              User.UserWithoutPass.fromUser(p.getUser()),
+              p.getEnrollmentDate(),
+              p.getFinalGrade()
+            );
+        }
+    }
 }
