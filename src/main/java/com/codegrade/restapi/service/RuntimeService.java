@@ -1,5 +1,6 @@
 package com.codegrade.restapi.service;
 
+import com.codegrade.restapi.controller.reqres.ResItemSampleTestCase;
 import com.codegrade.restapi.entity.SourceCode;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.runtime.ExecOutput;
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.xml.transform.Source;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -23,7 +27,7 @@ public class RuntimeService {
     private final RestTemplate restTemplate;
 
     public ExecOutput runCode(SourceCode source, String input, Double timeLimit) {
-        if (Objects.equals(source.getLanguage(), "PYTHON")) {
+        if (Objects.equals(source.getLanguage().toUpperCase(), "PYTHON")) {
             return runPythonCode(source.getSource(), input);
         } else {
             throw new ApiException(RBuilder.badRequest("language is not supported"));
@@ -47,6 +51,7 @@ public class RuntimeService {
         if (response == null) throw new ApiException(RBuilder.error("runtime server didn't respond"));
         return response.getData();
     }
+
 
     @Getter
     @Setter

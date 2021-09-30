@@ -121,7 +121,8 @@ public class AssignmentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
 
-        if (!assignment.getState().equals(AssignmentState.PUBLISHED) && !assignment.getState().equals(AssignmentState.DRAFT)) {
+        if (!assignment.getState().equals(AssignmentState.PUBLISHED) &&
+                !assignment.getState().equals(AssignmentState.DRAFT)) {
             throw new ApiException(RBuilder.locked("cannot change enrollment at this stage"));
         }
 
@@ -152,7 +153,6 @@ public class AssignmentService {
                 .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
     }
 
-    ;
 
     /**
      * Get list of participants by assignmentId

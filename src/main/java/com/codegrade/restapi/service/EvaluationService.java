@@ -1,10 +1,14 @@
 package com.codegrade.restapi.service;
 
+import com.codegrade.restapi.controller.reqres.ResItemSampleTestCase;
 import com.codegrade.restapi.entity.*;
+import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.repository.QuestionRepo;
 import com.codegrade.restapi.repository.SubmissionRepo;
 import com.codegrade.restapi.runtime.ExecOutput;
+import com.codegrade.restapi.utils.RBuilder;
 import lombok.AllArgsConstructor;
+import org.aspectj.weaver.ast.Test;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -21,27 +25,59 @@ public class EvaluationService {
     private final QuestionRepo questionRepo;
     private final RuntimeService runtimeService;
 
-    public TestCaseState checkTestCasePass(SourceCode sourceCode, String input, String output, Double timeLimit) {
+    private static TestCaseState toTestCaseState(ExecOutput res, String output) {
+        switch (res.getStatus()) {
+            case SUCCESS:
+                if (output.trim().equals(res.getOutput().trim())) {
+                    return TestCaseState.CORRECT_OUTPUT;
+                } else {
+                    return TestCaseState.INCORRECT_OUTPUT;
+                }
+            case COMPILE:
+            case RUNTIME:
+                return TestCaseState.RUNTIME_ERROR;
+            case TIMEOUT:
+                return TestCaseState.TIMEOUT;
+        }
+        return TestCaseState.UNKNOWN;
+    }
+
+
+    private TestCaseState checkTestCasePass(SourceCode sourceCode, String input, String output, Double timeLimit) {
         try {
             var result = runtimeService.runCode(sourceCode, input, timeLimit);
-            switch (result.getStatus()) {
-                case SUCCESS:
-                    if (output.trim().equals(result.getOutput().trim())) {
-                        return TestCaseState.CORRECT_OUTPUT;
-                    } else {
-                        return TestCaseState.INCORRECT_OUTPUT;
-                    }
-                case COMPILE:
-                case RUNTIME:
-                    return TestCaseState.RUNTIME_ERROR;
-                case TIMEOUT:
-                    return TestCaseState.TIMEOUT;
-
-            }
+            return toTestCaseState(result, output);
         } catch (RuntimeException e) {
             return TestCaseState.UNKNOWN;
         }
-        return TestCaseState.UNKNOWN;
+    }
+
+
+    public List<ResItemSampleTestCase> evaluationTest(SourceCode source, UUID questionId) {
+        Question question = questionRepo.findById(questionId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid question id")));
+        return question.getTestCases().parallelStream()
+                .filter(TestCase::getSample)
+                .map(t -> {
+                    try {
+                        ExecOutput result = runtimeService.runCode(source, t.getInput(), t.getTimeLimit());
+                        return new ResItemSampleTestCase(
+                                t.getId(),
+                                t.getInput(),
+                                result.getOutput(),
+                                t.getOutput(),
+                                toTestCaseState(result, t.getOutput())
+                        );
+                    } catch (RuntimeException e) {
+                        return new ResItemSampleTestCase(
+                                t.getId(),
+                                t.getInput(),
+                                null,
+                                t.getOutput(),
+                                TestCaseState.UNKNOWN
+                        );
+                    }
+                }).collect(Collectors.toList());
     }
 
     @Async
@@ -50,12 +86,12 @@ public class EvaluationService {
         if (result.getEvaluated()) return;
 
         List<TestCase> testCases = submission.getQuestion().getTestCases();
-        List<TestCaseResult> testCaseResultList = testCases.stream().map(t -> {
+        List<TestCaseResult> testCaseResultList = testCases.parallelStream().map(t -> {
             TestCaseState state = checkTestCasePass(submission.getSourceCode(), t.getInput(),
                     t.getOutput(), t.getTimeLimit());
             return TestCaseResult.builder()
                     .id(t.getId())
-                    .points((state == TestCaseState.CORRECT_OUTPUT)? t.getPoints(): 0)
+                    .points((state == TestCaseState.CORRECT_OUTPUT) ? t.getPoints() : 0)
                     .state(state)
                     .build();
         }).collect(Collectors.toList());
