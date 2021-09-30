@@ -5,6 +5,7 @@ import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.repository.AssignmentRepo;
 import com.codegrade.restapi.repository.ParticipationRepo;
 import com.codegrade.restapi.repository.QuestionRepo;
+import com.codegrade.restapi.repository.UserRepo;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class AssignmentService {
     private final QuestionRepo questionRepo;
     private final ParticipationRepo participationRepo;
     private final ObjectMapper objectMapper;
+    private final UserRepo userRepo;
 
     /**
      * Create new assignment
@@ -33,14 +35,13 @@ public class AssignmentService {
      * @param assignment - Assignment Details
      * @return Assignment with complete details
      */
-    public Assignment.LightWeight create(User instructor, Assignment assignment, List<UUID> questions) {
+    public Assignment.LightWeight createAssignment(User instructor, Assignment assignment, List<UUID> questions) {
         assignment.setInstructor(instructor);
-        var ques = questions.stream().map(id ->
-                questionRepo.findById(id).orElseThrow(() ->
-                        new ApiException(RBuilder.badRequest("invalid question id " + id))
-                )
-        ).collect(Collectors.toSet());
-        assignment.setQuestions(ques);
+        assignment.setQuestions(questions.stream()
+                .map(id -> questionRepo.findById(id)
+                        .orElseThrow(() -> new ApiException(RBuilder.badRequest("invalid question id " + id))))
+                .collect(Collectors.toSet()));
+        assignment.setState(AssignmentState.DRAFT);
         var created = assignmentRepo.save(assignment);
         return Assignment.LightWeight.fromAssignment(created);
     }
@@ -62,14 +63,15 @@ public class AssignmentService {
      * @param instructor - User
      * @return - List of assignments
      */
-    public List<Assignment.LightWeight> getByInstructor(User instructor, String assignmentState) {
+    public List<Assignment.LightWeight> getByInstructor(User instructor, AssignmentState assignmentState) {
         return assignmentRepo
-                .findAssignmentByInstructorAndState(instructor, new AssignmentState(assignmentState)).stream()
+                .findAssignmentByInstructorAndState(instructor, assignmentState).stream()
                 .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toList());
     }
 
     /**
      * Get assignment by id
+     *
      * @param assignmentId - UUID
      * @return assignment details
      */
@@ -79,35 +81,56 @@ public class AssignmentService {
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
     }
 
-    /**
-     * Change assignment state
-     * @param assignmentId - assignment id
-     * @param assignmentState
-     */
-    public void changeState(UUID assignmentId, String assignmentState) {
-        Assignment assignment1 = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not id")));
-
-            assignment1.setState( new AssignmentState(assignmentState));
-            assignmentRepo.save(assignment1);
-    }
-
 
     /**
-     * Participate in an assignment
+     * Enroll to an assignment
+     *
      * @param assignmentId - UUID
-     * @param student User
+     * @param student      - User
      */
-    public void addParticipant(UUID assignmentId, User student) {
+    public Boolean enrollToAssignment(UUID assignmentId, User student) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
-        Participation part = Participation.builder()
-                .assignment(assignment)
-                .user(student)
-                .enrollmentDate(new Date())
-                .build();
-        participationRepo.save(part);
+
+        if (!assignment.getState().equals(AssignmentState.PUBLISHED) && !assignment.getState().equals(AssignmentState.DRAFT)) {
+            throw new ApiException(RBuilder.locked("cannot change enrollment at this stage"));
+        }
+
+        var pid = new Participation.ParticipationId(assignmentId, student.getUserId());
+        if (participationRepo.findById(pid).isPresent()) {
+            throw new ApiException(RBuilder.badRequest("already enrolled"));
+        } else {
+            Participation part = Participation.builder()
+                    .assignment(assignment)
+                    .user(student)
+                    .enrollmentDate(new Date())
+                    .build();
+            participationRepo.save(part);
+            return true;
+        }
     }
+
+    /**
+     * Un-enroll student from an assignment
+     *
+     * @param assignmentId - UUID
+     * @param student      - Student
+     */
+    public Boolean unEnrollFromAssignment(UUID assignmentId, User student) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+
+        if (!assignment.getState().equals(AssignmentState.PUBLISHED) && !assignment.getState().equals(AssignmentState.DRAFT)) {
+            throw new ApiException(RBuilder.locked("cannot change enrollment at this stage"));
+        }
+
+        Participation p = participationRepo.findById(new Participation.ParticipationId(
+                student.getUserId(), assignmentId
+        )).orElseThrow(() -> new ApiException(RBuilder.notFound("you haven't enrolled")));
+        participationRepo.delete(p);
+        return true;
+    }
+
 
     /**
      * Get participated assignments by user
@@ -115,13 +138,23 @@ public class AssignmentService {
      * @return List of assignments
      */
     public Set<Assignment.LightWeight> getAssignmentByStudent(User student) {
-      return participationRepo.findParticipationByUser(student).stream()
-              .map(Participation::getAssignment)
-              .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
-    };
+        return participationRepo.findParticipationByUser(student).stream()
+                .map(Participation::getAssignment)
+                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
+    }
+
+    public Set<Assignment.LightWeight> getAssignmentByStudent(User student, AssignmentState state) {
+        return participationRepo.findParticipationByUser(student).stream()
+                .map(Participation::getAssignment)
+                .filter(as -> as.getState() == state)
+                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toSet());
+    }
+
+    ;
 
     /**
      * Get list of participants by assignmentId
+     *
      * @param assignmentId - UUID
      * @return list of participant users
      */
@@ -134,14 +167,87 @@ public class AssignmentService {
     }
 
     /**
-     * Get list of published assignments for students
-     * @param assignmentState - String
-     * @return list of published assignments
+     * Change assignment state
+     *
+     * @param assignmentId - UUID
+     * @param state        - state
+     * @return - Assignment
      */
-    public List<Assignment.LightWeight> getPublishedAssignments(String assignmentState){
-        return assignmentRepo
-                .findAssignmentByState(new AssignmentState(assignmentState)).stream()
-                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toList());
+    public Assignment.LightWeight changeAssignmentState(UUID assignmentId, AssignmentState state) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+        assignment.setState(state);
+        return Assignment.LightWeight.fromAssignment(assignmentRepo.save(assignment));
     }
 
+    /**
+     * Update assignment details
+     *
+     * @param assignmentId - UUID
+     * @param data         - Assignment Data
+     * @param questionIds  - Questions
+     * @return - Assignment
+     */
+    public Assignment.WithQuestions updateAssignment(UUID assignmentId, Assignment data, List<UUID> questionIds) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
+        Set<Question> questions = questionIds.stream()
+                .map(qid -> questionRepo.findById(qid)
+                        .orElseThrow(() -> new ApiException(
+                                RBuilder.notFound("invalid question id " + qid.toString()))
+                        )).collect(Collectors.toSet());
+
+        if (data.getTitle() != null) assignment.setTitle(data.getTitle());
+        if (data.getDescription() != null) assignment.setDescription(data.getDescription());
+        if (!questions.isEmpty()) assignment.setQuestions(questions);
+
+        // schedule update
+        if (data.getSchedule().isValid()) assignment.setSchedule(data.getSchedule());
+        return Assignment.WithQuestions.fromAssignment(assignmentRepo.save(assignment));
+    }
+
+    /**
+     * Get all public assignments
+     *
+     * @param assignmentState - assignment state
+     * @return Assignments
+     */
+    public List<Assignment.LightWeight> getPublicAssignments(AssignmentState assignmentState) {
+        return assignmentRepo.findAssignmentByTypeAndState(AssignmentType.PUBLIC, assignmentState).stream()
+                .map(Assignment.LightWeight::fromAssignment)
+                .collect(Collectors.toList());
+    }
+
+    public List<Assignment.LightWeight> getPublicAssignments() {
+        return assignmentRepo.findAssignmentByType(AssignmentType.PUBLIC).stream()
+                .map(Assignment.LightWeight::fromAssignment)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Make final grade
+     * @param assignmentId - UUID
+     * @param studentId - UUID
+     * @param finalGrade - Final Grade
+     * @return - Participation
+     */
+    public Participation.LightWeight submitFinalGrade(UUID assignmentId, UUID studentId, FinalGrade finalGrade) {
+        var pid = Participation.ParticipationId.fromIds(studentId, assignmentId);
+        Participation participation = participationRepo.findById(pid)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid participation")));
+        finalGrade.setGradedTime(new Date());
+        participation.setFinalGrade(finalGrade);
+        return Participation.LightWeight.fromParticipation(participationRepo.save(participation));
+    }
+
+    public FinalGrade getFinalGrade(UUID assignmentId, User student) {
+        var pid = Participation.ParticipationId.fromIds(student.getUserId(), assignmentId);
+        Participation participation = participationRepo.findById(pid)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid participation")));
+        FinalGrade finalGrade = participation.getFinalGrade();
+        if (finalGrade == null || finalGrade.getFinalGrade() == null) {
+            throw new ApiException(RBuilder.notFound("haven't graded yet"));
+        }
+        return finalGrade;
+    }
 }

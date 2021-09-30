@@ -47,11 +47,9 @@ public class Assignment {
     @JoinColumn(name = "type")
     private AssignmentType type;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date openTime;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date closeTime;
+    @Embedded
+    @Column(nullable = false)
+    private AssignmentSchedule schedule;
 
     public Assignment(UUID assignmentId) {
         this.assignmentId = assignmentId;
@@ -59,14 +57,11 @@ public class Assignment {
 
     /**
      * Whether that the assignment is accepting student submissions
+     *
      * @return - true - accept | false - not accept
      */
-    public Boolean isOpen() {
-       if (openTime == null || closeTime == null) {
-           return state == AssignmentState.OPEN;
-       }
-       var currentTime = new Date();
-       return openTime.compareTo(currentTime) < 0 && closeTime.compareTo(currentTime) > 0;
+    public Boolean doesAcceptSubmissions() {
+        return this.getState().equals(AssignmentState.OPEN);
     }
 
     @Data
@@ -79,21 +74,19 @@ public class Assignment {
         private List<UUID> questions;
         private String state;
         private String type;
-        private Date openTime;
-        private Date closeTime;
+        private AssignmentSchedule schedule;
 
         public static LightWeight fromAssignment(Assignment as) {
-           return new LightWeight(
-                   as.getAssignmentId(),
-                   as.getTitle(),
-                   as.getDescription(),
-                   as.getInstructor().getUserId(),
-                   as.getQuestions().stream().map(Question::getQuestionId).collect(Collectors.toList()),
-                   as.getState().getState(),
-                   as.getType().getType(),
-                   as.getOpenTime(),
-                   as.getCloseTime()
-           );
+            return new LightWeight(
+                    as.getAssignmentId(),
+                    as.getTitle(),
+                    as.getDescription(),
+                    as.getInstructor().getUserId(),
+                    as.getQuestions().stream().map(Question::getQuestionId).collect(Collectors.toList()),
+                    as.getState().getState(),
+                    as.getType().getType(),
+                    as.getSchedule()
+            );
         }
     }
 
@@ -107,8 +100,7 @@ public class Assignment {
         private List<Question.NoTestCase> questions;
         private String state;
         private String type;
-        private Date openTime;
-        private Date closeTime;
+        private AssignmentSchedule schedule;
 
         public static WithQuestions fromAssignment(Assignment as) {
             return new WithQuestions(
@@ -120,8 +112,7 @@ public class Assignment {
                             .collect(Collectors.toList()),
                     as.getState().getState(),
                     as.getType().getType(),
-                    as.getOpenTime(),
-                    as.getCloseTime()
+                    as.getSchedule()
             );
         }
     }
