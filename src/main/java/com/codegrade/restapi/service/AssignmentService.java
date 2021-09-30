@@ -28,6 +28,7 @@ public class AssignmentService {
     private final ParticipationRepo participationRepo;
     private final ObjectMapper objectMapper;
     private final UserRepo userRepo;
+    private final JobService jobService;
 
     /**
      * Create new assignment
@@ -179,6 +180,9 @@ public class AssignmentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
         assignment.setState(state);
+        if (state.equals(AssignmentState.PUBLISHED)) {
+            jobService.scheduleAssignment(assignmentId);
+        }
         return Assignment.LightWeight.fromAssignment(assignmentRepo.save(assignment));
     }
 
@@ -196,7 +200,7 @@ public class AssignmentService {
         Set<Question> questions = questionIds.stream()
                 .map(qid -> questionRepo.findById(qid)
                         .orElseThrow(() -> new ApiException(
-                                RBuilder.notFound("invalid question id " + qid.toString()))
+                                RBuilder.notFound("invalid question id " + qid))
                         )).collect(Collectors.toSet());
 
         if (data.getTitle() != null) assignment.setTitle(data.getTitle());

@@ -1,11 +1,15 @@
 package com.codegrade.restapi;
 
 import com.codegrade.restapi.config.SuperUserConfig;
+import com.codegrade.restapi.service.JobService;
 import com.codegrade.restapi.service.UserService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jobrunr.jobs.mappers.JobMapper;
+import org.jobrunr.storage.InMemoryStorageProvider;
+import org.jobrunr.storage.StorageProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,6 +47,13 @@ public class RestApiApplication {
                             log.info("Feeding: super user admin is added");
                         }
                 );
+    }
+
+    @Bean
+    public StorageProvider storageProvider(JobMapper jobMapper) {
+        InMemoryStorageProvider storageProvider = new InMemoryStorageProvider();
+        storageProvider.setJobMapper(jobMapper);
+        return storageProvider;
     }
 
     @Bean

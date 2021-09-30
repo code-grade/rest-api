@@ -42,6 +42,13 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
 
+org:
+  jobrunr:
+    background-job-server:
+      enabled: true
+    dashboard:
+      enabled: false
+
 auth:
   super-admin:
     username: admin
@@ -49,4 +56,3 @@ auth:
   jwt:
     secretKey: 9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l9g2f6l
     expiresIn: 14
-
