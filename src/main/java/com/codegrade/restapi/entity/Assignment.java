@@ -64,6 +64,19 @@ public class Assignment {
         return this.getState().equals(AssignmentState.OPEN);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Assignment that = (Assignment) o;
+        return Objects.equals(assignmentId, that.assignmentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(assignmentId);
+    }
+
     @Data
     @AllArgsConstructor
     public static class LightWeight {

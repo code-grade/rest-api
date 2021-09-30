@@ -117,8 +117,8 @@ public class AssignmentController {
         var context = AuthContext.fromContextHolder();
         return RBuilder.success()
                 .setData(state
-                        .map(s -> assignmentService.getPublicAssignments(new AssignmentState(s)))
-                        .orElse(assignmentService.getPublicAssignments()))
+                        .map(s -> assignmentService.getPublicAssignments(new AssignmentState(s), context.getUser()))
+                        .orElse(assignmentService.getPublicAssignments(context.getUser())))
                 .compactResponse();
     }
 

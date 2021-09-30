@@ -1,5 +1,6 @@
 package com.codegrade.restapi.service;
 
+import com.codegrade.restapi.controller.reqres.ResItemPublicAssignment;
 import com.codegrade.restapi.entity.*;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.repository.AssignmentRepo;
@@ -134,6 +135,7 @@ public class AssignmentService {
 
     /**
      * Get participated assignments by user
+     *
      * @param student - User
      * @return List of assignments
      */
@@ -212,23 +214,28 @@ public class AssignmentService {
      * @param assignmentState - assignment state
      * @return Assignments
      */
-    public List<Assignment.LightWeight> getPublicAssignments(AssignmentState assignmentState) {
+    public List<ResItemPublicAssignment> getPublicAssignments(AssignmentState assignmentState, User student) {
+        Set<Participation> participation = participationRepo.findParticipationByUser(student);
         return assignmentRepo.findAssignmentByTypeAndState(AssignmentType.PUBLIC, assignmentState).stream()
-                .map(Assignment.LightWeight::fromAssignment)
+                .map(a -> ResItemPublicAssignment.fromAssignment(a, participation.stream()
+                                .anyMatch(p -> p.getAssignment().equals(a) && p.getUser().equals(student))))
                 .collect(Collectors.toList());
     }
 
-    public List<Assignment.LightWeight> getPublicAssignments() {
+    public List<ResItemPublicAssignment> getPublicAssignments(User student) {
+        Set<Participation> participation = participationRepo.findParticipationByUser(student);
         return assignmentRepo.findAssignmentByType(AssignmentType.PUBLIC).stream()
-                .map(Assignment.LightWeight::fromAssignment)
+                .map(a -> ResItemPublicAssignment.fromAssignment(a, participation.stream()
+                        .anyMatch(p -> p.getAssignment().equals(a) && p.getUser().equals(student))))
                 .collect(Collectors.toList());
     }
 
     /**
      * Make final grade
+     *
      * @param assignmentId - UUID
-     * @param studentId - UUID
-     * @param finalGrade - Final Grade
+     * @param studentId    - UUID
+     * @param finalGrade   - Final Grade
      * @return - Participation
      */
     public Participation.LightWeight submitFinalGrade(UUID assignmentId, UUID studentId, FinalGrade finalGrade) {
