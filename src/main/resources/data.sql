@@ -11,7 +11,6 @@ INSERT INTO assignment_state (state)
         ('DRAFT'),
         ('PUBLISHED'),
         ('OPEN'),
-        ('AUTO_OPEN'),
         ('CLOSED'),
         ('FINALIZED')
     ON CONFLICT DO NOTHING;

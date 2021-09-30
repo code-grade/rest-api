@@ -30,7 +30,6 @@ class VAssignmentStateValidator implements ConstraintValidator<VAssignmentState,
                     AssignmentState.S_PUBLISHED,
                     AssignmentState.S_OPEN,
                     AssignmentState.S_CLOSED,
-                    AssignmentState.S_AUTO_OPEN,
                     AssignmentState.S_FINALIZED
             )) +"$");
 
