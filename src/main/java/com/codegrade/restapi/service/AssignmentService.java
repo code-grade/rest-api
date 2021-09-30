@@ -120,4 +120,15 @@ public class AssignmentService {
                 .map(User.UserWithoutPass::fromUser).collect(Collectors.toList());
     }
 
+    /**
+     * Get list of published assignments for students
+     * @param assignmentState - String
+     * @return list of published assignments
+     */
+    public List<Assignment.LightWeight> getPublishedAssignments(String assignmentState){
+        return assignmentRepo
+                .findAssignmentByState(new AssignmentState(assignmentState)).stream()
+                .map(Assignment.LightWeight::fromAssignment).collect(Collectors.toList());
+    }
+
 }

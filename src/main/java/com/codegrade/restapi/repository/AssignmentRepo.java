@@ -14,4 +14,5 @@ public interface AssignmentRepo extends JpaRepository<Assignment, UUID> {
 
     List<Assignment> findAssignmentByInstructor(User instructor);
     List<Assignment> findAssignmentByInstructorAndState(User instructor, AssignmentState state);
+    List<Assignment> findAssignmentByState(AssignmentState state);
 }

@@ -78,6 +78,14 @@ public class AssignmentController {
     }
 
     @Secured(UserRole.ROLE_STUDENT)
+    @GetMapping(path = "/assignment/all/{state}")
+    public ResponseEntity<?> getPublished(@PathVariable("state") @VAssignmentState Optional<String> state) {
+        return RBuilder.success()
+                .setData(assignmentService.getPublishedAssignments(state.get()))
+                .compactResponse();
+    }
+
+    @Secured(UserRole.ROLE_STUDENT)
     @GetMapping(path = "/assignment/participate")
     public ResponseEntity<?> getParticipatedAssignments() {
         var context = AuthContext.fromContextHolder();
