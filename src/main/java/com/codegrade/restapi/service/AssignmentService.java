@@ -79,6 +79,19 @@ public class AssignmentService {
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
     }
 
+    /**
+     * Change assignment state
+     * @param assignmentId - assignment id
+     * @param assignmentState
+     */
+    public void changeState(UUID assignmentId, String assignmentState) {
+        Assignment assignment1 = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not id")));
+
+            assignment1.setState( new AssignmentState(assignmentState));
+            assignmentRepo.save(assignment1);
+    }
+
 
     /**
      * Participate in an assignment

@@ -67,6 +67,16 @@ public class AssignmentController {
                 .compactResponse();
     }
 
+    @Secured(UserRole.ROLE_INSTRUCTOR)
+    @PutMapping(path = "/assignment/changeState/{assignmentId}/{state}")
+    public  ResponseEntity<?> changeState(
+            @PathVariable("assignmentId") @VUUID String assignmentId,
+            @PathVariable("state") @VAssignmentState Optional<String> state){
+        assignmentService.changeState(UUID.fromString(assignmentId), state.get());
+        return RBuilder.success()
+                .compactResponse();
+    }
+
 
     @Secured(UserRole.ROLE_STUDENT)
     @PutMapping(path = "/assignment/participate/{assignmentId}")
