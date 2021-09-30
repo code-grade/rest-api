@@ -108,16 +108,6 @@ public class AssignmentController {
                 .compactResponse();
     }
 
-    @Secured(UserRole.ROLE_INSTRUCTOR)
-    @PutMapping(path = "/assignment/changeState/{assignmentId}/{state}")
-    public  ResponseEntity<?> changeState(
-            @PathVariable("assignmentId") @VUUID String assignmentId,
-            @PathVariable("state") @VAssignmentState Optional<String> state){
-        assignmentService.changeState(UUID.fromString(assignmentId), state.get());
-        return RBuilder.success()
-                .compactResponse();
-    }
-
 
     @Secured({UserRole.ROLE_STUDENT, UserRole.ROLE_INSTRUCTOR})
     @GetMapping(path = "/assignment/public")
@@ -142,14 +132,6 @@ public class AssignmentController {
                 .compactResponse();
     }
 
-
-    @Secured(UserRole.ROLE_STUDENT)
-    @GetMapping(path = "/assignment/all/{state}")
-    public ResponseEntity<?> getPublished(@PathVariable("state") @VAssignmentState Optional<String> state) {
-        return RBuilder.success()
-                .setData(assignmentService.getPublishedAssignments(state.get()))
-                .compactResponse();
-    }
 
     @Secured(UserRole.ROLE_STUDENT)
     @GetMapping(path = "/assignment/participate")
