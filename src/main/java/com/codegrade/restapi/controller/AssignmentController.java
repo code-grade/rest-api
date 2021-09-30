@@ -163,7 +163,7 @@ public class AssignmentController {
     }
 
 
-    @Secured({UserRole.ROLE_INSTRUCTOR, UserRole.ROLE_STUDENT})
+    @Secured({ UserRole.ROLE_STUDENT})
     @GetMapping(path = "/assignment/{assignmentId}/grade")
     public ResponseEntity<?> GET_AssignmentsByParticipant(
             @PathVariable("assignmentId") @VUUID String assignmentId
@@ -173,6 +173,20 @@ public class AssignmentController {
                 .setData(assignmentService.getFinalGrade(
                         UUID.fromString(assignmentId),
                         context.getUser()
+                )).compactResponse();
+    }
+
+
+    @Secured({ UserRole.ROLE_INSTRUCTOR})
+    @GetMapping(path = "/assignment/{assignmentId}/student/{studentId}/grade")
+    public ResponseEntity<?> GET_AssignmentsByParticipant(
+            @PathVariable("assignmentId") @VUUID String assignmentId,
+            @PathVariable("studentId") @VUUID String studentId
+    ) {
+        return RBuilder.success()
+                .setData(assignmentService.getFinalGrade(
+                        UUID.fromString(assignmentId),
+                        UUID.fromString(studentId)
                 )).compactResponse();
     }
 }

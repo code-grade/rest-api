@@ -247,6 +247,11 @@ public class AssignmentService {
         return Participation.LightWeight.fromParticipation(participationRepo.save(participation));
     }
 
+    public FinalGrade getFinalGrade(UUID assignmentId, UUID studentId) {
+        User student = userRepo.findById(studentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid student id")));
+        return getFinalGrade(assignmentId, student);
+    }
     public FinalGrade getFinalGrade(UUID assignmentId, User student) {
         var pid = Participation.ParticipationId.fromIds(student.getUserId(), assignmentId);
         Participation participation = participationRepo.findById(pid)
