@@ -66,7 +66,7 @@ public class SubmissionService {
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
         Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
         return assignment.getQuestions().stream()
-                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUser(assignment, student, maximumPoints)
+                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUserAndQuestion(assignment, student, q, maximumPoints)
                         .orElse(null))
                 .filter(Objects::nonNull)
                 .map(Submission.WithQuestion::fromSubmission)

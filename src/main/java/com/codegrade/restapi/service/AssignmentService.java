@@ -260,10 +260,15 @@ public class AssignmentService {
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
         Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
         var summary = assignment.getQuestions().stream()
-                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUser(assignment, student, maximumPoints)
+                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUserAndQuestion(assignment, student, q, maximumPoints)
                         .orElse(null))
                 .filter(Objects::nonNull)
-                .map(s -> Map.of("question", s.getQuestion(), "result", s.getResult()))
+                .map(s -> {
+                    var map = new HashMap<>();
+                    map.put("question", Question.LightWeight.fromQuestion(s.getQuestion()));
+                    map.put("result", s.getResult());
+                    return map;
+                })
                 .collect(Collectors.toList());
 
         var pid = Participation.ParticipationId.fromIds(student.getUserId(), assignmentId);

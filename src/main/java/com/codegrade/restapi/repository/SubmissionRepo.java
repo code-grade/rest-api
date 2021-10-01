@@ -15,5 +15,11 @@ import java.util.UUID;
 @Repository
 public interface SubmissionRepo extends JpaRepository<Submission, UUID> {
     Set<Submission> findSubmissionByAssignmentAndQuestionAndUser(Assignment assignment, Question question, User user);
-    Optional<Submission> findDistinctFirstByAssignmentAndUser(Assignment assignment, User user, Sort sort);
+
+    Optional<Submission> findDistinctFirstByAssignmentAndUserAndQuestion(
+            Assignment assignment,
+            User user,
+            Question question,
+            Sort sort
+    );
 }
