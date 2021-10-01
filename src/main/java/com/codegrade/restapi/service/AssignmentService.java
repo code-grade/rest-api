@@ -3,15 +3,13 @@ package com.codegrade.restapi.service;
 import com.codegrade.restapi.controller.reqres.ResItemPublicAssignment;
 import com.codegrade.restapi.entity.*;
 import com.codegrade.restapi.exception.ApiException;
-import com.codegrade.restapi.repository.AssignmentRepo;
-import com.codegrade.restapi.repository.ParticipationRepo;
-import com.codegrade.restapi.repository.QuestionRepo;
-import com.codegrade.restapi.repository.UserRepo;
+import com.codegrade.restapi.repository.*;
 import com.codegrade.restapi.utils.RBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,6 +27,7 @@ public class AssignmentService {
     private final ObjectMapper objectMapper;
     private final UserRepo userRepo;
     private final JobService jobService;
+    private final SubmissionRepo submissionRepo;
 
     /**
      * Create new assignment
@@ -251,12 +250,22 @@ public class AssignmentService {
         return Participation.LightWeight.fromParticipation(participationRepo.save(participation));
     }
 
-    public FinalGrade getFinalGrade(UUID assignmentId, UUID studentId) {
+    public Object getFinalGrade(UUID assignmentId, UUID studentId) {
         User student = userRepo.findById(studentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid student id")));
         return getFinalGrade(assignmentId, student);
     }
-    public FinalGrade getFinalGrade(UUID assignmentId, User student) {
+    public Object getFinalGrade(UUID assignmentId, User student) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
+        Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
+        var summary = assignment.getQuestions().stream()
+                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUser(assignment, student, maximumPoints)
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .map(s -> Map.of("question", s.getQuestion(), "result", s.getResult()))
+                .collect(Collectors.toList());
+
         var pid = Participation.ParticipationId.fromIds(student.getUserId(), assignmentId);
         Participation participation = participationRepo.findById(pid)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid participation")));
@@ -264,6 +273,6 @@ public class AssignmentService {
         if (finalGrade == null || finalGrade.getFinalGrade() == null) {
             throw new ApiException(RBuilder.notFound("haven't graded yet"));
         }
-        return finalGrade;
+        return Map.of("finalGrade", finalGrade, "questionResult", summary);
     }
 }
