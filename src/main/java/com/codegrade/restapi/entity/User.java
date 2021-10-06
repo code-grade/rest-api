@@ -1,5 +1,6 @@
 package com.codegrade.restapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
@@ -24,6 +25,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @JsonIgnore
     @NotBlank(message = "password is required")
     @Column(nullable = false)
     private String password;
