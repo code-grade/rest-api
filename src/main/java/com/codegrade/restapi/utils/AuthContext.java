@@ -5,13 +5,7 @@ import com.codegrade.restapi.entity.UserRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,7 +54,7 @@ public class AuthContext {
         return is(UserRole.ROLE_STUDENT);
     }
 
-    public boolean matchesUserId(Optional<String> userId) {
+    public boolean matchUserId(Optional<String> userId) {
         return userId.map(s -> s.equals(this.auth.getName())).orElse(false);
     }
 

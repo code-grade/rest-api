@@ -31,6 +31,10 @@ public class AuthController {
 
     private final UserService userService;
 
+    /**
+     * Register New User
+     * @param user - User
+     */
     @PostMapping(path = "/auth/user")
     public ResponseEntity<?> registerUser(@RequestBody @Valid User user) {
         return RBuilder.success().setData(
@@ -50,7 +54,7 @@ public class AuthController {
         var context = AuthContext.fromContextHolder();
 
         // Try to access user data and user is not an admin
-        if ( userId.isPresent() && !context.isAdmin() && !context.matchesUserId(userId)) {
+        if ( userId.isPresent() && !context.isAdmin() && !context.matchUserId(userId)) {
             throw new ApiException(RBuilder.unauthorized());
         }
 
