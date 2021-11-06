@@ -24,8 +24,7 @@ public class User {
     @NotBlank(message = "username is required")
     @Column(unique = true, nullable = false)
     private String username;
-
-    @JsonIgnore
+    
     @NotBlank(message = "password is required")
     @Column(nullable = false)
     private String password;
