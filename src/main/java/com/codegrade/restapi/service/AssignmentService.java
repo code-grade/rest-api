@@ -10,8 +10,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,35 @@ public class AssignmentService {
     private final UserRepo userRepo;
     private final JobService jobService;
     private final SubmissionRepo submissionRepo;
+    private final FinalSubmissionRepo finalSubmissionRepo;
+
+
+    //        ╦ ╦╔╦╗╦╦  ╔═╗
+    //        ║ ║ ║ ║║  ╚═╗
+    //        ╚═╝ ╩ ╩╩═╝╚═╝
+
+    private void _updateFinalSubmission_Question(Assignment as, Question q) {
+        as.getParticipants()
+                .forEach(p -> {
+                    Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints");
+                    submissionRepo
+                            .findDistinctFirstByAssignmentAndUserAndQuestion(as, p.getUser(), q, maximumPoints)
+                            .ifPresent(s -> finalSubmissionRepo.save(FinalSubmission.fromSubmission(s)));
+                });
+    }
+
+    @Async
+    @Transactional
+    public void updateFinalSubmission_forAssignment(Assignment assignment) {
+        finalSubmissionRepo.deleteAllByAssignment(assignment);
+        assignment.getQuestions()
+                .forEach(q -> _updateFinalSubmission_Question(assignment, q));
+    }
+
+
+    //        ╔═╗╔═╗╔═╗╔╦╗╦ ╦╦═╗╔═╗╔═╗
+    //        ╠╣ ║╣ ╠═╣ ║ ║ ║╠╦╝║╣ ╚═╗
+    //        ╚  ╚═╝╩ ╩ ╩ ╚═╝╩╚═╚═╝╚═╝
 
     /**
      * Create new assignment
@@ -175,6 +206,7 @@ public class AssignmentService {
      * @param state        - state
      * @return - Assignment
      */
+    @Transactional
     public Assignment.LightWeight changeAssignmentState(UUID assignmentId, AssignmentState state) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
@@ -182,6 +214,7 @@ public class AssignmentService {
         if (state.equals(AssignmentState.PUBLISHED)) {
             jobService.scheduleAssignment(assignmentId);
         }
+        if (state.equals(AssignmentState.CLOSED)) updateFinalSubmission_forAssignment(assignment);
         return Assignment.LightWeight.fromAssignment(assignmentRepo.save(assignment));
     }
 
@@ -221,7 +254,7 @@ public class AssignmentService {
         Set<Participation> participation = participationRepo.findParticipationByUser(student);
         return assignmentRepo.findAssignmentByTypeAndState(AssignmentType.PUBLIC, assignmentState).stream()
                 .map(a -> ResItemPublicAssignment.fromAssignment(a, participation.stream()
-                                .anyMatch(p -> p.getAssignment().equals(a) && p.getUser().equals(student))))
+                        .anyMatch(p -> p.getAssignment().equals(a) && p.getUser().equals(student))))
                 .collect(Collectors.toList());
     }
 
@@ -255,10 +288,11 @@ public class AssignmentService {
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid student id")));
         return getFinalGrade(assignmentId, student);
     }
+
     public Object getFinalGrade(UUID assignmentId, User student) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
-        Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
+        Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints");
         var summary = assignment.getQuestions().stream()
                 .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUserAndQuestion(assignment, student, q, maximumPoints)
                         .orElse(null))

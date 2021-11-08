@@ -54,12 +54,14 @@ CREATE TABLE IF NOT EXISTS "assignment" (
 
 
 CREATE TABLE IF NOT EXISTS participation (
-    assignment_id   uuid         PRIMARY KEY,
+    assignment_id   uuid         NOT NULL,
     user_id         uuid         NOT NULL,
     enrollment_date timestamp    NULL,
     feedback        varchar(255) NULL,
     final_grade     float8       NULL,
     graded_time     timestamp    NULL,
+
+    CONSTRAINT participation_pkey PRIMARY KEY (assignment_id, user_id),
     CONSTRAINT fk_participation_student FOREIGN KEY (user_id) REFERENCES user_account (user_id),
     CONSTRAINT fk_participation_assignment FOREIGN KEY (assignment_id) REFERENCES "assignment" (assignment_id)
 );
@@ -101,4 +103,35 @@ CREATE TABLE IF NOT EXISTS assignment_questions (
     CONSTRAINT assignment_questions_pkey PRIMARY KEY (assignment_id, question_id),
     CONSTRAINT fk_aq_question FOREIGN KEY (question_id) REFERENCES question (question_id),
     CONSTRAINT fk_aq_assignment FOREIGN KEY (assignment_id) REFERENCES "assignment" (assignment_id)
+);
+
+CREATE TABLE IF NOT EXISTS final_submission (
+    submission_id  uuid         PRIMARY KEY,
+    assignment_id  uuid         NOT NULL,
+    user_id        uuid         NOT NULL,
+    question_id    uuid         NOT NULL,
+    submitted_time timestamp    NOT NULL,
+    evaluated_time timestamp    NULL,
+    evaluated      bool         DEFAULT TRUE,
+    test_cases     jsonb        NULL,
+    total_points   int4         NULL,
+    "language"     varchar(255) NULL,
+    "source"       varchar(255) NULL,
+
+    UNIQUE (assignment_id, user_id, question_id),
+    CONSTRAINT fk_final_submission_submission FOREIGN KEY (submission_id) REFERENCES "submission" (submission_id),
+    CONSTRAINT fk_final_submission_assignment FOREIGN KEY (assignment_id) REFERENCES "assignment" (assignment_id),
+    CONSTRAINT fk_final_submission_question FOREIGN KEY (question_id) REFERENCES question (question_id),
+    CONSTRAINT fk_final_submission_student FOREIGN KEY (user_id) REFERENCES user_account (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS plagiarism_report (
+    report_id       uuid         PRIMARY KEY,
+    assignment_id   uuid         NOT NULL,
+    question_id     uuid         NOT NULL,
+    report          json         NOT NULL,
+    generated_time  timestamp    NOT NULL,
+
+    CONSTRAINT fk_plagiarism_report_assignment FOREIGN KEY (assignment_id) REFERENCES "assignment" (assignment_id),
+    CONSTRAINT fk_plagiarism_report_question FOREIGN KEY (question_id) REFERENCES question(question_id)
 );
