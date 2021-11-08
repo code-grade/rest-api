@@ -76,4 +76,26 @@ public class FinalSubmission {
         }
 
     }
+
+    @Data
+    @NoArgsConstructor @AllArgsConstructor
+    @Builder
+    public static class WithQuestion {
+        private UUID submissionId;
+        private UUID assignmentId;
+        private Question.LightWeight question;
+        private SourceCode sourceCode;
+        private SubmissionResult result;
+        private Date submittedTime;
+
+        public static FinalSubmission.WithQuestion fromSubmission(FinalSubmission s) {
+            return FinalSubmission.WithQuestion.builder()
+                    .submissionId(s.submissionId)
+                    .assignmentId(s.getAssignment().getAssignmentId())
+                    .question(Question.LightWeight.fromQuestion(s.getQuestion()))
+                    .sourceCode(s.getSourceCode())
+                    .result(s.getResult())
+                    .submittedTime(s.getSubmittedTime()).build();
+        }
+    }
 }

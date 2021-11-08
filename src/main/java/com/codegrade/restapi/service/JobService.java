@@ -1,16 +1,19 @@
 package com.codegrade.restapi.service;
 
-import com.codegrade.restapi.entity.Assignment;
-import com.codegrade.restapi.entity.AssignmentSchedule;
-import com.codegrade.restapi.entity.AssignmentState;
+import com.codegrade.restapi.entity.*;
 import com.codegrade.restapi.exception.ApiException;
 import com.codegrade.restapi.repository.AssignmentRepo;
+import com.codegrade.restapi.repository.FinalSubmissionRepo;
+import com.codegrade.restapi.repository.SubmissionRepo;
 import com.codegrade.restapi.utils.RBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jobrunr.scheduling.JobScheduler;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -24,6 +27,34 @@ public class JobService {
 
     private final JobScheduler jobScheduler;
     private final AssignmentRepo assignmentRepo;
+    private final SubmissionRepo submissionRepo;
+    private final FinalSubmissionRepo finalSubmissionRepo;
+
+    //        ╦ ╦╔╦╗╦╦  ╔═╗
+    //        ║ ║ ║ ║║  ╚═╗
+    //        ╚═╝ ╩ ╩╩═╝╚═╝
+
+    private void _updateFinalSubmission_Question(Assignment as, Question q) {
+        as.getParticipants()
+                .forEach(p -> {
+                    Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints");
+                    submissionRepo
+                            .findDistinctFirstByAssignmentAndUserAndQuestion(as, p.getUser(), q, maximumPoints)
+                            .ifPresent(s -> finalSubmissionRepo.save(FinalSubmission.fromSubmission(s)));
+                });
+    }
+
+    @Async
+    @Transactional
+    public void updateFinalSubmission_forAssignment(Assignment assignment) {
+        finalSubmissionRepo.deleteAllByAssignment(assignment);
+        assignment.getQuestions()
+                .forEach(q -> _updateFinalSubmission_Question(assignment, q));
+    }
+
+    //        ╔═╗╔═╗╔═╗╔╦╗╦ ╦╦═╗╔═╗╔═╗
+    //        ╠╣ ║╣ ╠═╣ ║ ║ ║╠╦╝║╣ ╚═╗
+    //        ╚  ╚═╝╩ ╩ ╩ ╚═╝╩╚═╚═╝╚═╝
 
     public ZonedDateTime toZonedTime(Date dateToConvert) {
         return dateToConvert.toInstant()
@@ -42,6 +73,7 @@ public class JobService {
         }
     }
 
+    @Transactional
     public void closeAssignment(UUID assignmentId, Integer scheduleJobId) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("assignment not found")));
@@ -51,6 +83,7 @@ public class JobService {
                 Objects.equals(schedule.getScheduleJobId(), scheduleJobId)) {
             assignment.setState(AssignmentState.CLOSED);
             assignmentRepo.save(assignment);
+            updateFinalSubmission_forAssignment(assignment);
         }
     }
 

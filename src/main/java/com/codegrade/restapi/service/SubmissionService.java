@@ -2,15 +2,11 @@ package com.codegrade.restapi.service;
 
 import com.codegrade.restapi.entity.*;
 import com.codegrade.restapi.exception.ApiException;
-import com.codegrade.restapi.repository.AssignmentRepo;
-import com.codegrade.restapi.repository.QuestionRepo;
-import com.codegrade.restapi.repository.SubmissionRepo;
-import com.codegrade.restapi.repository.UserRepo;
+import com.codegrade.restapi.repository.*;
 import com.codegrade.restapi.utils.RBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +26,7 @@ public class SubmissionService {
     private final AssignmentRepo assignmentRepo;
     private final UserRepo userRepo;
     private final EvaluationService evaluationService;
+    private final FinalSubmissionRepo finalSubmissionRepo;
 
     public Submission.LightWeight makeSubmission(UUID assignmentId, UUID questionId, User user, SourceCode source) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
@@ -59,17 +56,17 @@ public class SubmissionService {
     }
 
 
-    public List<Submission.WithQuestion> getStudentSubmissionSummary(UUID assignmentId, UUID studentId) {
+    public List<FinalSubmission.WithQuestion> getStudentSubmissionSummary(UUID assignmentId, UUID studentId) {
         User student = userRepo.findById(studentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid student id")));
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new ApiException(RBuilder.notFound("invalid assignment id")));
-        Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints" );
+
         return assignment.getQuestions().stream()
-                .map(q -> submissionRepo.findDistinctFirstByAssignmentAndUserAndQuestion(assignment, student, q, maximumPoints)
+                .map(q -> finalSubmissionRepo.findByAssignmentAndQuestionAndUser(assignment, q, student)
                         .orElse(null))
                 .filter(Objects::nonNull)
-                .map(Submission.WithQuestion::fromSubmission)
+                .map(FinalSubmission.WithQuestion::fromSubmission)
                 .collect(Collectors.toList());
     }
 

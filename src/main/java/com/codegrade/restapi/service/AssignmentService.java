@@ -33,29 +33,6 @@ public class AssignmentService {
     private final FinalSubmissionRepo finalSubmissionRepo;
 
 
-    //        ╦ ╦╔╦╗╦╦  ╔═╗
-    //        ║ ║ ║ ║║  ╚═╗
-    //        ╚═╝ ╩ ╩╩═╝╚═╝
-
-    private void _updateFinalSubmission_Question(Assignment as, Question q) {
-        as.getParticipants()
-                .forEach(p -> {
-                    Sort maximumPoints = Sort.by(Sort.Direction.DESC, "result.totalPoints");
-                    submissionRepo
-                            .findDistinctFirstByAssignmentAndUserAndQuestion(as, p.getUser(), q, maximumPoints)
-                            .ifPresent(s -> finalSubmissionRepo.save(FinalSubmission.fromSubmission(s)));
-                });
-    }
-
-    @Async
-    @Transactional
-    public void updateFinalSubmission_forAssignment(Assignment assignment) {
-        finalSubmissionRepo.deleteAllByAssignment(assignment);
-        assignment.getQuestions()
-                .forEach(q -> _updateFinalSubmission_Question(assignment, q));
-    }
-
-
     //        ╔═╗╔═╗╔═╗╔╦╗╦ ╦╦═╗╔═╗╔═╗
     //        ╠╣ ║╣ ╠═╣ ║ ║ ║╠╦╝║╣ ╚═╗
     //        ╚  ╚═╝╩ ╩ ╩ ╚═╝╩╚═╚═╝╚═╝
@@ -214,7 +191,7 @@ public class AssignmentService {
         if (state.equals(AssignmentState.PUBLISHED)) {
             jobService.scheduleAssignment(assignmentId);
         }
-        if (state.equals(AssignmentState.CLOSED)) updateFinalSubmission_forAssignment(assignment);
+        if (state.equals(AssignmentState.CLOSED)) jobService.updateFinalSubmission_forAssignment(assignment);
         return Assignment.LightWeight.fromAssignment(assignmentRepo.save(assignment));
     }
 
