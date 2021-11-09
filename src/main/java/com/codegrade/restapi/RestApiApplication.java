@@ -37,16 +37,18 @@ public class RestApiApplication {
 
     @EventListener(ContextRefreshedEvent.class)
     public void feedRequiredDataToDatabase() {
-        log.info("Feeding: data into database");
-        log.info("Feeding: super user details");
-        userService.getUserDetails(superUserConfig.getUsername())
-                .ifPresentOrElse(
-                        (user) -> log.info("Feeding: super user admin is already present"),
-                        () -> {
-                            userService.addUser(superUserConfig.getUserAccount());
-                            log.info("Feeding: super user admin is added");
-                        }
-                );
+        if (superUserConfig.getEnable()) {
+            log.info("Feeding: data into database");
+            log.info("Feeding: super user details");
+            userService.getUserDetails(superUserConfig.getUsername())
+                    .ifPresentOrElse(
+                            (user) -> log.info("Feeding: super user admin is already present"),
+                            () -> {
+                                userService.addUser(superUserConfig.getUserAccount());
+                                log.info("Feeding: super user admin is added");
+                            }
+                    );
+        }
     }
 
     @Bean
