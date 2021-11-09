@@ -29,11 +29,11 @@ INSERT INTO user_account (user_id,first_name,last_name,email,username,"password"
    ('f6da539d-6e1c-402b-be59-c9b36d47264c'::uuid,'Student5','User5','student5@gmail.com','student5','$2a$10$UfJY3oG87avyjNOtdgxnzuhLtlAG6ISmm6/m4RJNoOv9.DHA0DpUa',true,'STUDENT');
 
 -- delete assignment data
-DROP TABLE public."assignment" CASCADE;
-DROP TABLE public.assignment_questions CASCADE;
-DROP TABLE public.final_submission CASCADE;
-DROP TABLE public.participation CASCADE;
-DROP TABLE public.question CASCADE;
-DROP TABLE public.submission CASCADE;
+--DROP TABLE public."assignment" CASCADE;
+--DROP TABLE public.assignment_questions CASCADE;
+--DROP TABLE public.final_submission CASCADE;
+--DROP TABLE public.participation CASCADE;
+--DROP TABLE public.question CASCADE;
+--DROP TABLE public.submission CASCADE;
 
 

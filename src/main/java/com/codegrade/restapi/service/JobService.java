@@ -44,7 +44,6 @@ public class JobService {
                 });
     }
 
-    @Async
     @Transactional
     public void updateFinalSubmission_forAssignment(Assignment assignment) {
         finalSubmissionRepo.deleteAllByAssignment(assignment);
